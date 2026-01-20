@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TodoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\LoginController;
@@ -38,7 +39,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
 
-Route::get('/', [TodoController::class, 'index']);
+Route::get('/todo', [TodoController::class, 'index']);
 Route::post('/todos', [TodoController::class, 'store']);
 
 Route::get('/todos', [TodoController::class, 'create']);
