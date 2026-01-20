@@ -1,4 +1,4 @@
-<a href="/todos">+ Tambah To-Do</a>
+<a href="{{ route('todo.create') }}">+ Tambah To-Do</a>
 
 <br><br>
 
