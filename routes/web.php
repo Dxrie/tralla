@@ -1,10 +1,14 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\TodoController;
+use App\Http\Controllers\Dashboard\AbsensiController;
+use App\Http\Controllers\Dashboard\IzinController;
+use App\Http\Controllers\Dashboard\TodoController;
+use App\Http\Controllers\Dashboard\LaporanController;
+use App\Http\Controllers\Dashboard\PeminjamanController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -27,22 +31,40 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::controller(DashboardController::class)->group(function () {
-        Route::get('/dashboard', 'index')->name('dashboard');
+    Route::prefix('/dashboard')->group(function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+        Route::controller(AbsensiController::class)->group(function () {
+            Route::get('/absensi-masuk', 'masuk')->name('absensi.masuk');
+            Route::get('/absensi-keluar', 'keluar')->name('absensi.keluar');
+        });
+
+        Route::controller(IzinController::class)->group(function () {
+            Route::get('/izin', 'index')->name('izin.index');
+        });
+
+        Route::controller(ProfileController::class)->group(function () {
+            Route::get('/profile', 'index')->name('profile.index');
+            Route::put('/profile/update', 'update')->name('profile.update');
+        });
     });
 
-    Route::controller(ProfileController::class)->group(function () {
-        Route::get('/profile', 'index')->name('profile');
-        Route::put('/profile/update', 'update')->name('profile.update');
+    Route::controller(TodoController::class)->group(function () {
+        Route::get('/todo', 'index')->name('todo.index');
+        Route::post('/todo', 'store')->name('todo.store');
+        Route::get('/todo/create', 'create')->name('todo.create');
+        Route::get('/todo/{todo}/edit', 'edit')->name('todo.edit');
+        Route::put('/todo/{todo}', 'update')->name('todo.update');
+        Route::delete('/todo/{todo}', 'destroy')->name('todo.destroy');
+    });
+
+    Route::controller(PeminjamanController::class)->group(function () {
+        Route::get('/peminjaman', 'index')->name('peminjaman.index');
+    });
+
+    Route::controller(LaporanController::class)->group(function () {
+        Route::get('/laporan', 'index')->name('laporan.index');
     });
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
-
-Route::get('/', [TodoController::class, 'index']);
-Route::post('/todos', [TodoController::class, 'store']);
-
-Route::get('/todos', [TodoController::class, 'create']);
-Route::get('/todos/{todo}/edit', [TodoController::class, 'edit']);
-Route::put('/todos/{todo}', [TodoController::class, 'update']);
-Route::delete('/todos/{todo}', [TodoController::class, 'destroy']);

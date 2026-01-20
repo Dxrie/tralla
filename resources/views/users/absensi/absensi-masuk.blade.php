@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tralla - Dashboard')
+@section('title', 'Tralla - Absensi Masuk')
 
 @section('content')
 @endsection
