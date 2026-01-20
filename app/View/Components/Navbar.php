@@ -11,10 +11,12 @@ use Symfony\Component\Routing\Route;
 class Navbar extends Component
 {
     public bool $isAuthenticated;
+    public $user;
 
     public function __construct()
     {
         $this->isAuthenticated = Auth::check();
+        $this->user = Auth::user();
     }
 
     public function homeRoute(): string

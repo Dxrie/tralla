@@ -11,7 +11,9 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
-Route::get('/about', [DashboardController::class, 'about'])->name('about');
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
 
 Route::middleware('guest')->group(function () {
     Route::controller(LoginController::class)->group(function () {
@@ -31,8 +33,7 @@ Route::middleware('auth')->group(function () {
 
     Route::controller(ProfileController::class)->group(function () {
         Route::get('/profile', 'index')->name('profile');
-        Route::get('/profile/edit', 'edit')->name('edit');
-        Route::put('/profile/update', 'update')->name('update');
+        Route::put('/profile/update', 'update')->name('profile.update');
     });
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
