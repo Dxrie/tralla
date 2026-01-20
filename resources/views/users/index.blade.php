@@ -3,5 +3,5 @@
 @section('title', 'Tralla - Dashboard')
 
 @section('content')
-Test
+
 @endsection
