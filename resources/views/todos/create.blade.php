@@ -4,48 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tambah To-Do</title>
-    @vite(['resources/css/app.scss', 'resources/js/app.js'])
 </head>
 <body>
-    <div class="container mt-5">
-        <form action="/todos" method="POST">
-            @csrf
 
-            <a href="/" class="btn btn-secondary mb-3">Lihat Data</a>
-            <br><br>
+    <h2>Tambah To-Do</h2>
 
-            <div class="form-group">
-                <label>Judul</label>
-                <input type="text" name="title" class="form-control">
-            </div>
+    <a href="/">Lihat Data</a>
 
-            <div class="form-group">
-                <label>Deskripsi</label>
-                <input type="text" name="description" class="form-control">
-            </div>
+    <br><br>
+    @if ($errors->any())
+        <p style="color: red;">
+            {{ $errors->first('title') }}
+        </p>
+    @endif
 
-            <div class="form-group">
-                <label>Status</label>
-                <select name="status" class="form-control">
-                    <option value="to-do">to-do</option>
-                    <option value="on progress">on progress</option>
-                    <option value="hold">hold</option>
-                    <option value="done">done</option>
-                </select>
-            </div>
 
-            <div class="form-group">
-                <label>Tanggal</label>
-                <input
-                    type="date"
-                    name="tanggal"
-                    class="form-control"
-                    value="{{ date('Y-m-d') }}"
-                >
-            </div>
+    <form action="/todos" method="POST">
+        @csrf
 
-            <button type="submit" class="btn btn-primary mt-3">Simpan</button>
-        </form>
-    </div>
+        <label>Judul</label><br>
+        <input type="text" name="title">
+        <br><br>
+
+        <label>Deskripsi</label><br>
+        <input type="text" name="description">
+        <br><br>
+
+        <label>Status</label><br>
+        <select name="status">
+            <option value="to-do">to-do</option>
+            <option value="on progress">on progress</option>
+            <option value="hold">hold</option>
+            <option value="done">done</option>
+        </select>
+        <br><br>
+
+        <label>Tanggal</label><br>
+        <input
+            type="date"
+            name="tanggal"
+            value="{{ date('Y-m-d') }}"
+        >
+        <br><br>
+
+        <button type="submit">Simpan</button>
+    </form>
+
 </body>
 </html>
