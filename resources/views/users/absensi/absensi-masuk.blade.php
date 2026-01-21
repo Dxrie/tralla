@@ -35,8 +35,29 @@
         }
     </style>
 
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <strong>Whoops!</strong> Ada masalah dengan input anda:
+            <ul class="mb-0 mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <div class="w-100 h-100 d-flex flex-column gap-4">
-        <div class="w-100 h-50 rounded-3 border p-3 d-flex flex-column overflow-hidden">
+        <div class="w-100 h-50 rounded-3 p-3 d-flex flex-column overflow-hidden">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3>Absensi Masuk</h3>
 
@@ -46,46 +67,59 @@
                     <span>Tambah Absensi</span>
                 </button>
 
-                <div class="modal fade" id="attendanceModal" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title">New Entry</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form>
-                                    <label for="username">Username</label>
-                                    <input type="text" name="username" id="username">
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <x-absensi-camera />
             </div>
 
             <table class="table table-hover scrollable-tbody mb-0">
                 <thead class="table-light">
                     <tr>
-                        <th style="width: 10%;">No</th>
+                        <th style="width: 5%;">No</th>
                         <th style="width: 20%;">Name</th>
                         <th style="width: 15%;">Status</th>
                         <th style="width: 15%;">Tanggal</th>
-                        <th style="width: 20%;">Keterangan</th>
-                        <th style="width: 20%;">Bukti</th>
+                        <th style="width: 20%;">Waktu</th>
+                        <th style="width: 25%;">Bukti</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @for ($i = 1; $i <= 1; $i++)
+                    @forelse ($todaysEntries as $entry)
                         <tr>
-                            <td style="width: 10%;">{{ $i }}</td>
-                            <td style="width: 20%;">Ahmad</td>
-                            <td style="width: 15%;"><span class="badge bg-success">Hadir</span></td>
-                            <td style="width: 15%;">25 Agustus 2025</td>
-                            <td style="width: 20%;">Tidak ada keterangan</td>
-                            <td style="width: 20%;">Bukti Disini woi</td>
+                            <td style="width: 5%;">{{ $loop->iteration }}</td>
+                            <td style="width: 20%;">{{ Auth::user()->name }}</td>
+
+                            <td style="width: 15%;">
+                                @if ($entry->status === 'ontime')
+                                    <span class="badge bg-success">Hadir (On Time)</span>
+                                @else
+                                    <span class="badge bg-danger">Terlambat</span>
+                                @endif
+                            </td>
+
+                            {{-- Display Date (e.g., 21 January 2026) --}}
+                            <td style="width: 15%;">{{ $entry->created_at->format('d F Y') }}</td>
+
+                            {{-- Display Time (e.g., 08:30:00) --}}
+                            <td style="width: 20%;">{{ $entry->created_at->format('H:i:s') }}</td>
+
+                            <td style="width: 25%;">
+                                @if ($entry->image_path)
+                                    {{-- Link to view the proof in a new tab --}}
+                                    <a href="{{ Storage::url($entry->image_path) }}" target="_blank"
+                                        class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Lihat Bukti
+                                    </a>
+                                @else
+                                    <span class="text-muted small">Tidak ada foto</span>
+                                @endif
+                            </td>
                         </tr>
-                    @endfor
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">
+                                Belum ada data absensi untuk hari ini.
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -93,21 +127,95 @@
 
     @push('scripts')
         <script type="module">
-            $('#openModalBtn').on('click', function() {
-                $('#attendanceModal').modal('show');
-            });
+            $(document).ready(() => {
+                $('#openModalBtn').on('click', function() {
+                    $('#attendanceModal').modal('show');
+                });
 
-            $('#openBtn').on('click', function() {
-                $('#customPopup').fadeIn();
-            });
+                $('#openBtn').on('click', function() {
+                    $('#customPopup').fadeIn();
+                });
 
-            $('#closeBtn').on('click', function() {
-                $('#customPopup').fadeOut();
-            });
+                $('#closeBtn').on('click', function() {
+                    $('#customPopup').fadeOut();
+                });
 
-            if ($('#customPopup').is(':visible')) {
-                console.log("The popup is currently open");
-            }
+                if ($('#customPopup').is(':visible')) {
+                    console.log("The popup is currently open");
+                }
+
+                const $video = $('#video');
+                const $canvas = $('#canvas');
+                const $result = $('#result');
+                const $snapBtn = $('#snapBtn');
+                const $retakeBtn = $('#retakeBtn');
+                const $submitBtn = $('#submitBtn');
+                const $imageInput = $('#image_base64');
+                const $cameraContainer = $('#camera-container');
+                const $loadingText = $('#camera-loading');
+
+                let stream = null;
+
+                $('#attendanceModal').on('shown.bs.modal', async function() {
+                    try {
+                        stream = await navigator.mediaDevices.getUserMedia({
+                            video: {
+                                facingMode: "user"
+                            }
+                        });
+
+                        $video[0].srcObject = stream;
+                        $loadingText.addClass('d-none');
+                    } catch (err) {
+                        alert("Camera access denied or not available!");
+                        console.error(err);
+                    }
+                });
+
+                $('#attendanceModal').on('hidden.bs.modal', function() {
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                        $video[0].srcObject = null;
+                    }
+                    resetCamera();
+                });
+
+                $snapBtn.on('click', function() {
+                    const videoEl = $video[0];
+                    const canvasEl = $canvas[0];
+
+                    canvasEl.width = videoEl.videoWidth;
+                    canvasEl.height = videoEl.videoHeight;
+
+                    const context = canvasEl.getContext('2d');
+                    context.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+
+                    const dataUrl = canvasEl.toDataURL('image/jpeg', 0.8);
+
+                    $result.attr('src', dataUrl).removeClass('d-none');
+                    $cameraContainer.addClass('d-none');
+                    $imageInput.val(dataUrl);
+
+                    $snapBtn.addClass('d-none');
+                    $retakeBtn.removeClass('d-none');
+                    $submitBtn.prop('disabled', false);
+                });
+
+                $retakeBtn.on('click', function() {
+                    resetCamera();
+                });
+
+                function resetCamera() {
+                    $result.addClass('d-none');
+                    $cameraContainer.removeClass('d-none');
+                    $imageInput.val('');
+
+                    $snapBtn.removeClass('d-none');
+                    $retakeBtn.addClass('d-none');
+                    $submitBtn.prop('disabled', true);
+                    $loadingText.removeClass('d-none');
+                }
+            });
         </script>
     @endpush
 @endsection
