@@ -6,5 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class ExitActivity extends Model
 {
-    //
+    protected $fillable = [
+        'user_id',
+        'image_path',
+        'status'
+    ];
 }

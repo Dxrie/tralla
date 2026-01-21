@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('exit_activities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
-            $table->enum('status', ['ontime', 'overtime', 'early']);
             $table->string('image_path');
             $table->timestamps();
         });
