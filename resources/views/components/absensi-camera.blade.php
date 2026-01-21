@@ -14,7 +14,7 @@
                     @if ($state === 'masuk')
                         <div class="mb-3">
                             <label class="form-label">Status</label>
-                            <select name="status" class="form-select">
+                            <select id="statusSelect" name="status" class="form-select">
                                 <option disabled selected>Pilih status absensi</option>
                                 <option value="hadir">Hadir</option>
                                 <option value="izin">Izin</option>
@@ -22,7 +22,12 @@
                         </div>
                     @endif
 
-                    <div class="mb-3">
+                    <div id="keterangan_field" class="mb-3 d-none">
+                        <label for="keterangan" class="form-label">Keterangan (Wajib)</label>
+                        <textarea name="keterangan" id="keterangan" class="form-control" style="resize: none;"></textarea>
+                    </div>
+
+                    <div id="camera" class="mb-3">
                         <label class="form-label">Ambil Foto (Wajib)</label>
 
                         <div id="camera-container" class="w-100 bg-dark rounded overflow-hidden position-relative"

@@ -36,18 +36,21 @@ class AbsensiController extends Controller
     public function masukStore(Request $request)
     {
         $validated = $request->validate([
-            'image_base64' => 'required',
             'status' => ['required', Rule::in(['hadir', 'izin'])],
+            'image_base64' => 'required_if:status,hadir',
+            'keterangan' => 'required_if:status,izin',
         ]);
 
         $deadline = Carbon::now()->setTime(9, 0, 0);
-        $status = $validated['status'] === 'hadir' ? (Carbon::now()->greaterThan($deadline) ? 'late' : 'ontime') : 'absent';
 
-        var_dump($status);
+        if ($validated['status'] === 'hadir') {
+            $status = Carbon::now()->greaterThan($deadline) ? 'late' : 'ontime';
+        } else {
+            $status = 'absent';
+        }
 
         $imagePath = null;
-
-        if ($validated['image_base64']) {
+        if (!empty($validated['image_base64'])) {
             $image_parts = explode(';base64,', $validated['image_base64']);
             $image_base64 = base64_decode($image_parts[1]);
 
@@ -57,14 +60,19 @@ class AbsensiController extends Controller
         }
 
         EntryActivity::create([
-            'user_id' => Auth::id(),
+            'user_id'    => Auth::id(),
+            'status'     => $status,
             'image_path' => $imagePath,
-            'status' => $status,
+            'detail'    => $request->keterangan ?? null,
         ]);
 
-        $message = $status === 'late'
-            ? 'Absensi berhasil, namun anda tercatat terlambat.'
-            : 'Absensi berhasil! Selamat bekerja.';
+        if ($status === 'absent') {
+            $message = 'Izin berhasil diajukan.';
+        } else {
+            $message = $status === 'late'
+                ? 'Absensi berhasil, namun anda tercatat terlambat.'
+                : 'Absensi berhasil! Selamat bekerja.';
+        }
 
         return redirect()->back()->with('success', $message);
     }

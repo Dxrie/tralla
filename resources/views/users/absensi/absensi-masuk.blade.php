@@ -80,7 +80,8 @@
                         <th style="width: 15%;">Status</th>
                         <th style="width: 15%;">Tanggal</th>
                         <th style="width: 20%;">Waktu</th>
-                        <th style="width: 25%;">Bukti</th>
+                        <th style="width: 15%;">Keterangan</th>
+                        <th style="width: 10%;">Bukti</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -105,7 +106,9 @@
                             {{-- Display Time (e.g., 08:30:00) --}}
                             <td style="width: 20%;">{{ $entry->created_at->format('H:i:s') }}</td>
 
-                            <td style="width: 25%;">
+                            <td class="text-truncate" style="width: 15%;">{{ $entry->detail }}</td>
+
+                            <td style="width: 10%;">
                                 @if ($entry->image_path)
                                     {{-- Link to view the proof in a new tab --}}
                                     <a href="{{ Storage::url($entry->image_path) }}" target="_blank"
@@ -131,23 +134,7 @@
 
     @push('scripts')
         <script type="module">
-            $(document).ready(() => {
-                $('#openModalBtn').on('click', function() {
-                    $('#attendanceModal').modal('show');
-                });
-
-                $('#openBtn').on('click', function() {
-                    $('#customPopup').fadeIn();
-                });
-
-                $('#closeBtn').on('click', function() {
-                    $('#customPopup').fadeOut();
-                });
-
-                if ($('#customPopup').is(':visible')) {
-                    console.log("The popup is currently open");
-                }
-
+            $(document).ready(function() {
                 const $video = $('#video');
                 const $canvas = $('#canvas');
                 const $result = $('#result');
@@ -157,31 +144,88 @@
                 const $imageInput = $('#image_base64');
                 const $cameraContainer = $('#camera-container');
                 const $loadingText = $('#camera-loading');
-
+                const $statusSelect = $('#statusSelect');
+                const $keteranganField = $('#keterangan_field');
+                const $keteranganInput = $('#keterangan');
+                const $cameraWrapper = $('#camera');
                 let stream = null;
 
-                $('#attendanceModal').on('shown.bs.modal', async function() {
+                async function startCamera() {
                     try {
-                        stream = await navigator.mediaDevices.getUserMedia({
-                            video: {
-                                facingMode: "user"
-                            }
-                        });
-
-                        $video[0].srcObject = stream;
-                        $loadingText.addClass('d-none');
+                        if (!stream) {
+                            stream = await navigator.mediaDevices.getUserMedia({
+                                video: {
+                                    facingMode: "user"
+                                }
+                            });
+                            $video[0].srcObject = stream;
+                            $loadingText.addClass('d-none');
+                        }
                     } catch (err) {
-                        alert("Camera access denied or not available!");
-                        console.error(err);
+                        console.error("Camera Error:", err);
+                        alert("Could not start camera.");
+                    }
+                }
+
+                function stopCamera() {
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                        $video[0].srcObject = null;
+                        stream = null;
+                    }
+                }
+
+                function resetCameraUI() {
+                    $result.addClass('d-none');
+                    $cameraContainer.removeClass('d-none');
+                    $imageInput.val('');
+
+                    $snapBtn.removeClass('d-none');
+                    $retakeBtn.addClass('d-none');
+                    $submitBtn.prop('disabled', true);
+                    $loadingText.removeClass('d-none');
+                }
+
+                $('#attendanceModal').on('shown.bs.modal', function() {
+                    if ($statusSelect.val() !== 'izin') {
+                        startCamera();
                     }
                 });
 
                 $('#attendanceModal').on('hidden.bs.modal', function() {
-                    if (stream) {
-                        stream.getTracks().forEach(track => track.stop());
-                        $video[0].srcObject = null;
+                    stopCamera();
+                    resetCameraUI();
+                    $statusSelect.val($statusSelect.find("option:first").val());
+                    $keteranganField.addClass('d-none');
+                    $cameraWrapper.removeClass('d-none');
+                });
+
+                $statusSelect.on('change', function() {
+                    const value = $(this).val();
+
+                    if (value === 'izin') {
+                        $keteranganField.removeClass('d-none');
+                        $keteranganInput.prop('required', true);
+
+                        $cameraWrapper.addClass('d-none');
+
+                        stopCamera();
+                        $imageInput.val('');
+                        $imageInput.prop('required', false);
+                        $submitBtn.prop('disabled', false);
+                    } else {
+                        $keteranganField.addClass('d-none');
+                        $keteranganInput.prop('required', false).val('');
+
+                        $cameraWrapper.removeClass('d-none');
+
+                        startCamera();
+                        $imageInput.prop('required', true);
+
+                        if ($imageInput.val() === '') {
+                            $submitBtn.prop('disabled', true);
+                        }
                     }
-                    resetCamera();
                 });
 
                 $snapBtn.on('click', function() {
@@ -206,19 +250,8 @@
                 });
 
                 $retakeBtn.on('click', function() {
-                    resetCamera();
+                    resetCameraUI();
                 });
-
-                function resetCamera() {
-                    $result.addClass('d-none');
-                    $cameraContainer.removeClass('d-none');
-                    $imageInput.val('');
-
-                    $snapBtn.removeClass('d-none');
-                    $retakeBtn.addClass('d-none');
-                    $submitBtn.prop('disabled', true);
-                    $loadingText.removeClass('d-none');
-                }
             });
         </script>
     @endpush

@@ -9,6 +9,7 @@ class EntryActivity extends Model
     protected $fillable = [
         'user_id',
         'image_path',
-        'status'
+        'status',
+        'detail',
     ];
 }
