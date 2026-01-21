@@ -1,6 +1,6 @@
 @extends('layouts.auth')
 
-@section('title', 'Login')
+@section('title', 'Login • Tralla')
 
 @section('content')
     <div class="container">

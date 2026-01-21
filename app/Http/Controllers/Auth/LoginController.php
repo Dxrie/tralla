@@ -32,7 +32,8 @@ class LoginController extends Controller
 
         // If authentication fails
         return back()->withErrors([
-            'email' => 'Invalid email or password.',
+            'email' => 'Email unrecognized.',
+            'password' => 'Password wrong.'
         ])->onlyInput('email');
     }
 
