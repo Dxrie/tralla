@@ -13,7 +13,8 @@ class Todo extends Model
         'title',
         'description',
         'status',
-        'tanggal'
+        'tanggal',
+        'tanggal_selesai'
     ];
 }
 
