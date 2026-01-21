@@ -78,13 +78,13 @@
                 </a>
             </li>
 
-            <!-- Peminjaman Barang -->
-            <li class="nav-item">
-                <a href="{{ route('peminjaman.index') }}" class="nav-link {{ request()->routeIs('peminjaman.index') ? 'active' : 'link-dark' }} d-flex align-items-center">
-                    <i class="bi bi-box-seam me-3"></i>
-                    <span>Peminjaman Barang</span>
-                </a>
-            </li>
+        <!-- To Do List -->
+        <li class="nav-item">
+            <a href="{{ route('todo.index') }}" class="nav-link link-dark d-flex align-items-center">
+                <i class="bi bi-check-circle me-3"></i>
+                <span>To Do List</span>
+            </a>
+        </li>
 
             <!-- Laporan Dropdown -->
             <li class="nav-item">

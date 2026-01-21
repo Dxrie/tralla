@@ -24,13 +24,44 @@ class TodoController extends Controller
 
         Todo::create($request->all());
 
-        return redirect('/');
+        return redirect()->route('todo.index')
+                         ->with('success', 'Data berhasil ditambahkan!');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $todos = Todo::all();
-        return view('todos.index', compact('todos'));
+        $query = Todo::query();
+
+        if ($request->status) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->bulan) {
+            $query->whereMonth('tanggal', $request->bulan);
+        }
+
+        if ($request->tahun) {
+            $query->whereYear('tanggal', $request->tahun);
+        }
+
+        $todos = $query->orderBy('tanggal', 'desc')->get();
+
+        $statuses = ['to-do', 'on progress', 'hold', 'done'];
+
+        $months = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret',
+            4 => 'April', 5 => 'Mei', 6 => 'Juni',
+            7 => 'Juli', 8 => 'Agustus', 9 => 'September',
+            10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        $years = [];
+        $currentYear = now()->year;
+        for ($i = $currentYear - 3; $i <= $currentYear + 1; $i++) {
+            $years[] = $i;
+        }
+
+        return view('todos.index', compact('todos', 'statuses', 'months', 'years'));
     }
 
     public function edit(Todo $todo)
@@ -47,14 +78,24 @@ class TodoController extends Controller
             'description' => 'nullable|string'
         ]);
 
-        $todo->update($request->all());
+        $data = $request->all();
 
-        return redirect('/');
+        if ($request->status === 'done' && $todo->tanggal_selesai === null) {
+            $data['tanggal_selesai'] = now();
+        }
+
+        if ($request->status !== 'done') {
+            $data['tanggal_selesai'] = null;
+        }
+
+        $todo->update($data);
+
+        return redirect()->route('todo.index');
     }
 
     public function destroy(Todo $todo)
     {
         $todo->delete();
-        return redirect('/');
+        return redirect()->route('todo.index');
     }
 }

@@ -1,14 +1,13 @@
 <?php
-
-use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\AbsensiController;
 use App\Http\Controllers\Dashboard\IzinController;
-use App\Http\Controllers\Dashboard\TodoController;
 use App\Http\Controllers\Dashboard\LaporanController;
 use App\Http\Controllers\Dashboard\PeminjamanController;
+use App\Http\Controllers\Dashboard\TodoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/about', function () {
