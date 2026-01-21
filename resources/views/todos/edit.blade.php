@@ -27,26 +27,28 @@
             @method('PUT')
 
             <div class="mb-3">
-                <label class="form-label fw-semibold">Judul</label>
+                <label class="form-label fw-semibold" style="font-size:0.75rem">Judul</label>
                 <input type="text"
                        name="title"
                        class="form-control form-control-sm"
                        value="{{ old('title', $todo->title) }}"
-                       placeholder="Masukkan judul to-do">
+                       placeholder="Masukkan judul to-do"
+                       style="font-size:0.75rem">
             </div>
 
             <div class="mb-3">
-                <label class="form-label fw-semibold">Deskripsi</label>
+                <label class="form-label fw-semibold" style="font-size:0.75rem">Deskripsi</label>
                 <input type="text"
                        name="description"
                        class="form-control form-control-sm"
                        value="{{ old('description', $todo->description) }}"
-                       placeholder="Masukkan deskripsi">
+                       placeholder="Masukkan deskripsi"
+                       style="font-size:0.75rem">
             </div>
 
             <div class="mb-3">
-                <label class="form-label fw-semibold">Status</label>
-                <select name="status" class="form-select form-select-sm">
+                <label class="form-label fw-semibold" style="font-size:0.75rem">Status</label>
+                <select name="status" class="form-select form-select-sm" style="font-size:0.75rem">
                     <option value="to-do" {{ old('status', $todo->status) == 'to-do' ? 'selected' : '' }}>To-Do</option>
                     <option value="on progress" {{ old('status', $todo->status) == 'on progress' ? 'selected' : '' }}>On Progress</option>
                     <option value="hold" {{ old('status', $todo->status) == 'hold' ? 'selected' : '' }}>Hold</option>
@@ -55,21 +57,24 @@
             </div>
 
             <div class="mb-4">
-                <label class="form-label fw-semibold">Tanggal</label>
+                <label class="form-label fw-semibold" style="font-size:0.75rem">Tanggal</label>
                 <input type="date"
                        name="tanggal"
                        class="form-control form-control-sm"
-                       value="{{ old('tanggal', $todo->tanggal) }}">
+                       value="{{ old('tanggal', $todo->tanggal) }}"
+                       style="font-size:0.75rem">
             </div>
 
             {{-- Action --}}
             <div class="d-flex justify-content-end gap-2">
                 <a href="{{ route('todo.index') }}"
-                   class="btn btn-outline-secondary btn-sm px-3">
+                   class="btn btn-outline-secondary btn-sm px-3"
+                   style="font-size:0.75rem">
                     Batal
                 </a>
                 <button type="submit"
-                        class="btn btn-primary btn-sm px-4">
+                        class="btn btn-primary btn-sm px-4"
+                        style="font-size:0.75rem">
                     Update
                 </button>
             </div>
