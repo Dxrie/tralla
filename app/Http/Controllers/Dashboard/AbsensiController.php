@@ -15,7 +15,7 @@ class AbsensiController extends Controller
 {
     public function masuk()
     {
-        $todaysEntries = EntryActivity::where('user_id', Auth::id())
+        $todaysEntries = EntryActivity::with('user')
             ->whereDate('created_at', Carbon::today())
             ->latest()
             ->get();
@@ -25,7 +25,7 @@ class AbsensiController extends Controller
 
     public function keluar()
     {
-        $todaysEntries = ExitActivity::where('user_id', Auth::id())
+        $todaysEntries = ExitActivity::with('user')
             ->whereDate('created_at', Carbon::today())
             ->latest()
             ->get();

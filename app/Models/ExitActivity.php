@@ -11,4 +11,9 @@ class ExitActivity extends Model
         'image_path',
         'status'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

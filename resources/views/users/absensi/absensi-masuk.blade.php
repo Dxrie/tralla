@@ -88,7 +88,7 @@
                     @forelse ($todaysEntries as $entry)
                         <tr>
                             <td style="width: 5%;">{{ $loop->iteration }}</td>
-                            <td style="width: 20%;">{{ Auth::user()->name }}</td>
+                            <td style="width: 20%;">{{ $entry->user->name }}</td>
 
                             <td style="width: 15%;">
                                 @if ($entry->status === 'ontime')
@@ -106,7 +106,8 @@
                             {{-- Display Time (e.g., 08:30:00) --}}
                             <td style="width: 20%;">{{ $entry->created_at->format('H:i:s') }}</td>
 
-                            <td class="text-truncate" style="width: 15%;">{{ $entry->detail }}</td>
+                            <td class="text-truncate" style="width: 15%;">{{ $entry->detail ?? 'Tidak ada keterangan' }}
+                            </td>
 
                             <td style="width: 10%;">
                                 @if ($entry->image_path)

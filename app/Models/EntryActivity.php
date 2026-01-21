@@ -12,4 +12,9 @@ class EntryActivity extends Model
         'status',
         'detail',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
