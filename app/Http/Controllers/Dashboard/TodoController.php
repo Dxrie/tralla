@@ -24,7 +24,8 @@ class TodoController extends Controller
 
         Todo::create($request->all());
 
-        return redirect()->route('todo.index');
+        return redirect()->route('todo.index')
+                         ->with('success', 'Data berhasil ditambahkan!');
     }
 
     public function index()

@@ -89,7 +89,7 @@
 
         <!-- To Do List -->
         <li class="nav-item">
-            <a href="#" class="nav-link link-dark d-flex align-items-center">
+            <a href="{{ route('todo.index') }}" class="nav-link link-dark d-flex align-items-center">
                 <i class="bi bi-check-circle me-3"></i>
                 <span>To Do List</span>
             </a>
