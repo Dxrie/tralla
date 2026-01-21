@@ -23,7 +23,7 @@
         <x-sidebar />
 
         <!-- Main Content Area -->
-        <div class="flex-grow-1 p-4 bg-secondary bg-opacity-25" style="overflow-y: auto;">
+        <div class="flex-grow-1 p-4 bg-secondary bg-opacity-25" style="overflow-y: auto; overflow-x: hidden; min-width: 0;">
             @yield('content')
         </div>
     </main>

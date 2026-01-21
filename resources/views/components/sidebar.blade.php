@@ -1,4 +1,5 @@
-<div class="d-flex flex-column flex-shrink-0 p-3 bg-light h-100" style="width: 280px;">
+@if ($isAuthenticated)
+<div class="d-flex flex-column flex-shrink-0 py-4 px-2 bg-light h-100" style="width: 280px;">
     <a href="{{ route('profile.index') }}" class="text-decoration-none">
         <div class="d-flex justify-content-center align-items-center flex-column mb-2">
             <div class="position-relative" style="width: 56px; height: 56px;">
@@ -150,3 +151,4 @@
         </ul>
     </div> --}}
 </div>
+@endif
