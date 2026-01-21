@@ -3,4 +3,5 @@
 @section('title', 'Tralla - Absensi Keluar')
 
 @section('content')
+
 @endsection
