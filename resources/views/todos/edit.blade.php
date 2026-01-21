@@ -1,57 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit To-Do</title>
-</head>
-<body>
+@extends('layouts.app')
 
-    <h2>Edit To-Do</h2>
+@section('title', 'Edit To-Do • Tralla')
 
-    <a href="/">Kembali</a>
+@section('content')
+<div class="w-100 h-100 d-flex flex-column gap-4">
 
-    <br><br>
+    <div class="w-100 rounded-3 bg-white p-4">
 
-    <form action="/todos/{{ $todo->id }}" method="POST">
-        @csrf
-        @method('PUT')
+        {{-- Header --}}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold mb-0">Edit To-Do</h4>
+        </div>
 
-        <label>Judul</label><br>
-        <input
-            type="text"
-            name="title"
-            value="{{ $todo->title }}"
-        >
-        <br><br>
+        {{-- Error --}}
+        @if ($errors->any())
+            <div class="alert alert-danger py-2" style="font-size:0.75rem">
+                {{ $errors->first() }}
+            </div>
+        @endif
 
-        <label>Deskripsi</label><br>
-        <input
-            type="text"
-            name="description"
-            value="{{ $todo->description }}"
-        >
-        <br><br>
+        {{-- Form --}}
+        <form action="{{ route('todo.update', $todo->id) }}"
+              method="POST"
+              style="font-size:0.75rem">
+            @csrf
+            @method('PUT')
 
-        <label>Status</label><br>
-        <select name="status">
-            <option value="to-do" {{ $todo->status == 'to-do' ? 'selected' : '' }}>to-do</option>
-            <option value="on progress" {{ $todo->status == 'on progress' ? 'selected' : '' }}>on progress</option>
-            <option value="hold" {{ $todo->status == 'hold' ? 'selected' : '' }}>hold</option>
-            <option value="done" {{ $todo->status == 'done' ? 'selected' : '' }}>done</option>
-        </select>
-        <br><br>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Judul</label>
+                <input type="text"
+                       name="title"
+                       class="form-control form-control-sm"
+                       value="{{ old('title', $todo->title) }}"
+                       placeholder="Masukkan judul to-do">
+            </div>
 
-        <label>Tanggal</label><br>
-        <input
-            type="date"
-            name="tanggal"
-            value="{{ $todo->tanggal }}"
-        >
-        <br><br>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Deskripsi</label>
+                <input type="text"
+                       name="description"
+                       class="form-control form-control-sm"
+                       value="{{ old('description', $todo->description) }}"
+                       placeholder="Masukkan deskripsi">
+            </div>
 
-        <button type="submit">Update</button>
-    </form>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Status</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="to-do" {{ old('status', $todo->status) == 'to-do' ? 'selected' : '' }}>To-Do</option>
+                    <option value="on progress" {{ old('status', $todo->status) == 'on progress' ? 'selected' : '' }}>On Progress</option>
+                    <option value="hold" {{ old('status', $todo->status) == 'hold' ? 'selected' : '' }}>Hold</option>
+                    <option value="done" {{ old('status', $todo->status) == 'done' ? 'selected' : '' }}>Done</option>
+                </select>
+            </div>
 
-</body>
-</html>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Tanggal</label>
+                <input type="date"
+                       name="tanggal"
+                       class="form-control form-control-sm"
+                       value="{{ old('tanggal', $todo->tanggal) }}">
+            </div>
+
+            {{-- Action --}}
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{{ route('todo.index') }}"
+                   class="btn btn-outline-secondary btn-sm px-3">
+                    Batal
+                </a>
+                <button type="submit"
+                        class="btn btn-primary btn-sm px-4">
+                    Update
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+@endsection

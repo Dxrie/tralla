@@ -1,54 +1,76 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah To-Do</title>
-</head>
-<body>
+@extends('layouts.app')
 
-    <h2>Tambah To-Do</h2>
+@section('title', 'Tambah To-Do • Tralla')
 
-    <a href="/">Lihat Data</a>
+@section('content')
+<div class="w-100 h-100 d-flex flex-column gap-4">
 
-    <br><br>
-    @if ($errors->any())
-        <p style="color: red;">
-            {{ $errors->first('title') }}
-        </p>
-    @endif
+    <div class="w-100 rounded-3 bg-white p-4">
 
+        {{-- Header --}}
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold mb-0">Tambah To-Do</h4>
+        </div>
 
-    <form action="/todos" method="POST">
-        @csrf
+        {{-- Error --}}
+        @if ($errors->any())
+            <div class="alert alert-danger py-2" style="font-size:0.75rem">
+                {{ $errors->first() }}
+            </div>
+        @endif
 
-        <label>Judul</label><br>
-        <input type="text" name="title">
-        <br><br>
+        {{-- Form --}}
+        <form action="{{ route('todo.store') }}" method="POST" style="font-size:0.75rem">
+            @csrf
 
-        <label>Deskripsi</label><br>
-        <input type="text" name="description">
-        <br><br>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Judul</label>
+                <input type="text"
+                       name="title"
+                       class="form-control form-control-sm"
+                       value="{{ old('title') }}"
+                       placeholder="Masukkan judul to-do">
+            </div>
 
-        <label>Status</label><br>
-        <select name="status">
-            <option value="to-do">to-do</option>
-            <option value="on progress">on progress</option>
-            <option value="hold">hold</option>
-            <option value="done">done</option>
-        </select>
-        <br><br>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Deskripsi</label>
+                <input type="text"
+                       name="description"
+                       class="form-control form-control-sm"
+                       value="{{ old('description') }}"
+                       placeholder="Masukkan deskripsi">
+            </div>
 
-        <label>Tanggal</label><br>
-        <input
-            type="date"
-            name="tanggal"
-            value="{{ date('Y-m-d') }}"
-        >
-        <br><br>
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Status</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="to-do" {{ old('status') == 'to-do' ? 'selected' : '' }}>To-Do</option>
+                    <option value="on progress" {{ old('status') == 'on progress' ? 'selected' : '' }}>On Progress</option>
+                    <option value="hold" {{ old('status') == 'hold' ? 'selected' : '' }}>Hold</option>
+                </select>
+            </div>
 
-        <button type="submit">Simpan</button>
-    </form>
+            <div class="mb-4">
+                <label class="form-label fw-semibold">Tanggal</label>
+                <input type="date"
+                       name="tanggal"
+                       class="form-control form-control-sm"
+                       value="{{ old('tanggal', date('Y-m-d')) }}">
+            </div>
 
-</body>
-</html>
+            {{-- Action --}}
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{{ route('todo.index') }}"
+                   class="btn btn-outline-secondary btn-sm px-3">
+                    Batal
+                </a>
+                <button type="submit"
+                        class="btn btn-primary btn-sm px-4">
+                    Simpan
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+@endsection
