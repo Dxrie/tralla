@@ -6,9 +6,21 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="attendanceForm" action="{{ route('absensi.masuk.store') }}" method="POST"
-                    enctype="multipart/form-data">
+                <form id="attendanceForm"
+                    action="{{ $state === 'masuk' ? route('absensi.masuk.store') : route('absensi.keluar.store') }}"
+                    method="POST" enctype="multipart/form-data">
                     @csrf
+
+                    @if ($state === 'masuk')
+                        <div class="mb-3">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option disabled selected>Pilih status absensi</option>
+                                <option value="hadir">Hadir</option>
+                                <option value="izin">Izin</option>
+                            </select>
+                        </div>
+                    @endif
 
                     <div class="mb-3">
                         <label class="form-label">Ambil Foto (Wajib)</label>

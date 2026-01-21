@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('title', 'Absensi Masuk • Tralla')
+
 @section('content')
     <style>
         .scrollable-tbody tbody {
@@ -59,7 +61,7 @@
     <div class="w-100 h-100 d-flex flex-column gap-4">
         <div class="w-100 h-50 rounded-3 p-3 d-flex flex-column overflow-hidden">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3>Absensi Masuk</h3>
+                <h3 class="fw-bold">Absensi Masuk</h3>
 
                 <button id="openModalBtn" type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
                     data-bs-toggle="modal" data-bs-target="#attendanceModal">
@@ -90,6 +92,8 @@
                             <td style="width: 15%;">
                                 @if ($entry->status === 'ontime')
                                     <span class="badge bg-success">Hadir (On Time)</span>
+                                @elseif ($entry->status === 'absent')
+                                    <span class="badge bg-warning text-dark">Izin (Absen)</span>
                                 @else
                                     <span class="badge bg-danger">Terlambat</span>
                                 @endif

@@ -21,6 +21,7 @@ class AbsensiCamera extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.absensi-camera');
+        $state = request()->routeIs('absensi.masuk') ? 'masuk' : 'keluar';
+        return view('components.absensi-camera', compact('state'));
     }
 }
