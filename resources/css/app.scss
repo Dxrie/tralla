@@ -45,12 +45,8 @@ a[aria-expanded="true"] .collapse-chevron {
 .nav.flex-column .nav-link {
     padding-left: 2rem;
     font-size: 0.875rem;
-    
-    &:hover:not(.active) {
-        background-color: rgba(0, 0, 0, 0.03);
-    }
-}
 
-.sidebar-scroll-container {
-    min-height: 0;
+    &:hover:not(.active) {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
 }
