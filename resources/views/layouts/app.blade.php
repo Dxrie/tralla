@@ -16,7 +16,7 @@
 <body class="d-flex flex-column min-vh-100">
     <x-navbar />
     
-    <main class="d-flex flex-grow-1">
+    <main class="d-flex flex-grow-1 overflow-hidden">
         <x-sidebar />
         
         <!-- Main Content Area -->

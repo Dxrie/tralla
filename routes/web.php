@@ -11,15 +11,15 @@ use App\Http\Controllers\Dashboard\LaporanController;
 use App\Http\Controllers\Dashboard\PeminjamanController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
-
 Route::get('/about', function () {
     return view('about');
 })->name('about');
 
 Route::middleware('guest')->group(function () {
+    Route::get('/', function () {
+        return view('home');
+    })->name('home');
+
     Route::controller(LoginController::class)->group(function () {
         Route::get('/login', 'index')->name('login');
         Route::post('/login', 'login')->name('login.post');
