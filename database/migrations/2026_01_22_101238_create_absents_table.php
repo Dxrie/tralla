@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('entry_activities', function (Blueprint $table) {
+        Schema::create('absents', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
-            $table->enum('status', ['late', 'ontime']);
-            $table->string('image_path');
+            $table->text('detail');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('entry_activities');
+        Schema::dropIfExists('absents');
     }
 };
