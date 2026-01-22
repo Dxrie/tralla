@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Absent;
 use App\Models\EntryActivity;
 use App\Models\ExitActivity;
 use Carbon\Carbon;
@@ -45,29 +46,31 @@ class AbsensiController extends Controller
 
         if ($validated['status'] === 'hadir') {
             $status = Carbon::now()->greaterThan($deadline) ? 'late' : 'ontime';
-        } else {
-            $status = 'absent';
-        }
 
-        $imagePath = null;
-        if (!empty($validated['image_base64'])) {
             $image_parts = explode(';base64,', $validated['image_base64']);
             $image_base64 = base64_decode($image_parts[1]);
 
             $filePath = 'absensi_masuk/' . uniqid() . '.jpg';
             Storage::disk('public')->put($filePath, $image_base64);
-            $imagePath = $filePath;
-        }
 
-        EntryActivity::create([
-            'user_id'    => Auth::id(),
-            'status'     => $status,
-            'image_path' => $imagePath,
-            'detail'    => $request->keterangan ?? null,
-        ]);
+            EntryActivity::create([
+                'user_id'    => Auth::id(),
+                'status'     => $status,
+                'image_path' => $filePath,
+            ]);
+        } else {
+            $status = 'absent';
+
+            Absent::create([
+                'user_id' => Auth::id(),
+                'detail' => $validated['keterangan'],
+            ]);
+        }
 
         if ($status === 'absent') {
             $message = 'Izin berhasil diajukan.';
+
+            return redirect()->route('izin.index')->with('success', $message);
         } else {
             $message = $status === 'late'
                 ? 'Absensi berhasil, namun anda tercatat terlambat.'

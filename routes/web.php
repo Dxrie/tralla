@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\Dashboard\IzinController;
 use App\Http\Controllers\Dashboard\LaporanController;
 use App\Http\Controllers\Dashboard\PeminjamanController;
 use App\Http\Controllers\Dashboard\TodoController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/about', function () {
@@ -47,7 +49,8 @@ Route::middleware('auth')->group(function () {
         Route::controller(ProfileController::class)->group(function () {
             Route::get('/profile', 'index')->name('profile.index');
             Route::put('/profile/update', 'update')->name('profile.update');
-            Route::put('/profile/change-password', 'changePass')->name('profile.change-pass');
+            Route::put('/profile/change-password', 'changePassword')->name('profile.change-password');
+            Route::put('/profile/avatar', 'updateAvatar')->name('profile.avatar');
         });
     });
 

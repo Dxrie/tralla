@@ -3,13 +3,48 @@
 @section('title', $user->firstName() . ' • Tralla')
 
 @section('content')
-<div class="row">
-    <div class="col-md-5">
+<div class="row gap-4 gap-lg-0">
+    <div class="col-lg-5">
         <div class="d-flex flex-column p-3 bg-light rounded-3 shadow">
             <p class="fs-4 fw-semibold text-light bg-primary flex-grow-1 text-center py-3 rounded-2 mb-4">Profile Picture</p>
+            <form action="{{ route('profile.avatar') }}"
+                method="POST"
+                enctype="multipart/form-data"
+                class="d-flex flex-column gap-3">
+
+                @csrf
+                @method('PUT')
+
+                <div class="d-flex flex-column align-items-center">
+                    <input type="file"
+                    name="avatar"
+                    class="form-control @error('avatar') is-invalid @enderror"
+                    accept=".jpg,.jpeg,.png">
+                    @error('avatar')
+                        <div class="invalid-feedback d-block">
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Update Profile Picture
+                </button>
+
+                {{-- Avatar Preview --}}
+                <div class="text-center">
+                    <img
+                        src="{{ $user->avatar
+                                ? asset('storage/' . $user->avatar)
+                                : asset('images/default-avatar.png') }}"
+                        class="img-fluid rounded-2 my-2 shadow"
+                        style="max-height: 300px; object-fit: cover;"
+                        alt="Profile Avatar">
+                </div>
+            </form>
         </div>
     </div>
-    <div class="col-md-7">
+    <div class="col-lg-7">
         <div class="d-flex flex-column p-3 bg-light rounded-3 shadow">
             <p class="fs-4 fw-semibold text-light bg-primary flex-grow-1 text-center py-3 rounded-2 mb-4">{{ $user->firstName() }}'s Credentials</p>
             <form id="profile-form" class="d-flex flex-column gap-1 mb-4" action="{{ route('profile.update') }}" method="POST">
@@ -19,12 +54,12 @@
                 <div class="d-flex flex-row gap-2 align-items-center">
                     <label for="name" style="width: 30%" class="fw-medium">Name</label>
                     <input type="text" style="width: 70%" class="form-control-p bg-light @error('name') is-invalid @enderror"
-                        id="name" name="name" value="{{ $user->name }}" disabled>
+                        id="name" name="name" value="{{ $user->name }}" readonly>
                 </div>
                 <div class="d-flex flex-row gap-2 align-items-center">
                     <label for="email" style="width: 30%" class="fw-medium">Email</label>
                     <input type="email" style="width: 70%" class="form-control-p bg-light @error('email') is-invalid @enderror"
-                        id="email" name="email" value="{{ $user->email }}" disabled>
+                        id="email" name="email" value="{{ $user->email }}" readonly>
                 </div>
                 <div class="d-flex flex-row gap-2 align-items-center">
                     <label for="role" style="width: 30%" class="fw-medium">Role</label>
@@ -68,25 +103,42 @@
         <div class="modal-content shadow rounded-3">
             <div class="modal-header">
                 <h5 class="modal-title">Change Password</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <form id="change-password-form">
+            <form action="{{ route('profile.change-password') }}" method="POST" id="change-password-form">
+                @csrf
+                @method('PUT')
                 <div class="modal-body d-flex flex-column gap-3">
 
                     <div>
                         <label class="fw-medium mb-1">Old Password</label>
-                        <input type="password" class="form-control" name="old_password">
+                        <input type="password" class="form-control @error('old_password') is-invalid @enderror" value="{{ old('old_password') }}" name="old_password">
+                        @error('old_password')
+                            <div class="invalid-feedback d-block">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <div>
                         <label class="fw-medium mb-1">New Password</label>
-                        <input type="password" class="form-control" name="new_password">
+                        <input type="password" class="form-control @error('new_password') is-invalid @enderror" name="new_password">
+                        @error('new_password')
+                            <div class="invalid-feedback d-block">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     <div>
                         <label class="fw-medium mb-1">Confirm Password</label>
-                        <input type="password" class="form-control" name="new_password_confirmation">
+                        <input type="password" class="form-control @error('new_password_confirmation') is-invalid @enderror" name="new_password_confirmation">
+                        @error('new_password_confirmation')
+                            <div class="invalid-feedback d-block">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                 </div>
@@ -113,13 +165,18 @@
     padding: 0.4rem 0.2rem;
     font-size: 1rem;
     transition: all 0.2s ease;
-
-    &:disabled {
-        color: black;
-    }
 }
 
-.form-control-p:not(:disabled):not(p), .form-control-p.is-invalid:not(:disabled):not(p)  {
+.form-control-p:disabled,
+.form-control-p[readonly] {
+    color: black;
+    border-bottom: none;
+    cursor: default;
+    outline: none;
+}
+
+.form-control-p:not(:disabled):not([readonly]):not(p),
+.form-control-p.is-invalid:not(:disabled):not([readonly]):not(p) {
     outline: none;
     font-size: 0.925rem;
     border-bottom: 2px solid #0d6efd;
@@ -128,93 +185,109 @@
 
 <script type="module">
 $(document).ready(function () {
-    // ==============================
-    // ELEMENT SELECTORS
-    // ==============================
-    const $editBtn   = $('#editBtn');
-    const $cancelBtn = $('#cancelBtn');
-    const $submitBtn = $('#submitBtn');
+
     const $form      = $('#profile-form');
     const $inputs    = $form.find('input');
+    const $editBtn   = $('#editBtn');
+    const $cancelBtn = $('#cancelBtn');
 
-    // ==============================
-    // STORE ORIGINAL VALUES
-    // ==============================
+    let isEditing = false;
     const originalValues = {};
 
+    // Save original values
     $inputs.each(function () {
-        const name  = $(this).attr('name');
-        const value = $(this).val();
-
-        originalValues[name] = value;
+        originalValues[this.name] = $(this).val();
     });
 
-    // ==============================
-    // EDIT MODE STATE
-    // ==============================
-    let isEditing = false;
-
-    // ==============================
-    // EDIT / SAVE BUTTON HANDLER
-    // ==============================
+    // =========================
+    // EDIT / SAVE BUTTON
+    // =========================
     $editBtn.on('click', function () {
 
-        // ==========================
-        // ENTER EDIT MODE
-        // ==========================
         if (!isEditing) {
+            $inputs.prop('readonly', false);
 
-            // Enable all inputs
-            $inputs.prop('disabled', false);
-
-            // Change Edit button → Save
             $editBtn
                 .html('<i class="bi bi-check me-2"></i>Save')
                 .removeClass('btn-primary')
                 .addClass('btn-success');
 
-            // Show Cancel button
             $cancelBtn.removeClass('d-none');
-
-            // Update state
             isEditing = true;
-
-        } 
-        // ==========================
-        // SAVE MODE
-        // ==========================
-        else {
-
-            // Trigger form submit
-            $submitBtn.trigger('click');
+            return;
         }
+
+        // =========================
+        // AJAX SUBMIT
+        // =========================
+        $.ajax({
+            url: $form.attr('action'),
+            type: 'PUT',
+            data: $form.serialize(),
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+
+            success: function (res) {
+                // Update original values
+                Object.keys(res.user).forEach(key => {
+                    originalValues[key] = res.user[key];
+                });
+
+                // Lock inputs
+                $inputs.prop('readonly', true);
+
+                // Reset UI
+                $editBtn
+                    .html('<i class="bi bi-pen-fill me-2"></i>Edit')
+                    .removeClass('btn-success')
+                    .addClass('btn-primary');
+
+                $cancelBtn.addClass('d-none');
+                isEditing = false;
+
+                // Success feedback
+                alert(res.message);
+            },
+
+            error: function (xhr) {
+                const errors = xhr.responseJSON?.errors || {};
+
+                // Clear old errors
+                $inputs.removeClass('is-invalid');
+
+                // Show validation errors
+                Object.keys(errors).forEach(field => {
+                    $(`[name="${field}"]`).addClass('is-invalid');
+                });
+
+                alert('Please fix the errors.');
+            }
+        });
     });
 
-    // ==============================
-    // CANCEL BUTTON HANDLER
-    // ==============================
+    // =========================
+    // CANCEL BUTTON
+    // =========================
     $cancelBtn.on('click', function () {
-
-        // Restore original values & disable inputs
         $inputs.each(function () {
-            const name = $(this).attr('name');
-            $(this)
-                .val(originalValues[name])
-                .prop('disabled', true);
+            $(this).val(originalValues[this.name]).prop('readonly', true);
         });
 
-        // Restore Edit button appearance
         $editBtn
             .html('<i class="bi bi-pen-fill me-2"></i>Edit')
             .removeClass('btn-success')
             .addClass('btn-primary');
 
-        // Hide Cancel button
         $cancelBtn.addClass('d-none');
-
-        // Reset state
         isEditing = false;
     });
+
+    @if ($errors->has('old_password') || 
+    $errors->has('new_password') || 
+    $errors->has('new_password_confirmation'))
+        $("#changePasswordBtn").click();
+    @endif
 });
 </script>
 @endsection

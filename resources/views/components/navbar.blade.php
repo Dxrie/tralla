@@ -8,31 +8,9 @@
             </span>
         </a>
 
-        <!-- Mobile Toggle Button -->
-        <button class="navbar-toggler h-100 py-0" type="button" data-toggle="collapse" data-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
         <!-- Navigation Items -->
-        <div class="collapse navbar-collapse h-100" id="navbarNav">
-            <ul class="navbar-nav ms-auto h-100 align-items-center">
-                @if (!$isAuthenticated)
-                    <!-- About Us -->
-                    <li class="nav-item h-100">
-                        <a class="nav-link text-dark h-100 d-flex align-items-center px-3" href="{{ route('about') }}"
-                            title="About Us">
-                            About Us
-                        </a>
-                    </li>
-
-                    <!-- Home Icon -->
-                    <li class="nav-item h-100">
-                        <a class="nav-link text-dark h-100 d-flex align-items-center px-3" href="{{ $homeRoute() }}">
-                            Home
-                        </a>
-                    </li>
-                @endif
-
+        <div class="h-100">
+            <ul class="navbar-nav d-flex flex-row gap-3 h-100 align-items-center">
                 @if ($isAuthenticated)
                     <!-- Profile Dropdown -->
                     <li class="nav-item dropdown h-100">
@@ -43,7 +21,9 @@
                             <div class="d-flex align-items-center justify-content-center h-100">
                                 <div class="position-relative" style="width: 37px; height: 37px;">
                                     <img draggable="false"
-                                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1Ge5ZNd1jtWQIUJVaZhczOC8H1JNSlg443g&s"
+                                        src="{{ $user->avatar
+                                ? asset('storage/' . $user->avatar)
+                                : asset('images/default-avatar.png') }}"
                                         class="w-100 h-100 object-fit-cover rounded-circle p-1 bg-primary bg-opacity-25"
                                         alt="{{ $user->name ?? 'User' }}">
                                 </div>
@@ -71,11 +51,20 @@
                         </ul>
                     </li>
                 @else
-                    <!-- Login link -->
                     <li class="nav-item h-100">
-                        <a class="nav-link text-dark h-100 d-flex align-items-center px-3" href="{{ route('login') }}"
+                        <a class="nav-link text-dark h-100 d-flex align-items-center" href="{{ route('register') }}"
+                            title="Register">
+                            <button class="btn btn-secondary px-4 rounded-pill fw-semibold">
+                                Register
+                            </button>
+                        </a>
+                    </li>
+                    <li class="nav-item h-100">
+                        <a class="nav-link text-dark h-100 d-flex align-items-center" href="{{ route('login') }}"
                             title="Login">
-                            Login
+                            <button class="btn btn-primary px-4 rounded-pill fw-semibold">
+                                Login
+                            </button>
                         </a>
                     </li>
                 @endif
