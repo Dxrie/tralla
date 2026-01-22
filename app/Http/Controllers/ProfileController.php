@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class ProfileController extends Controller
 {
@@ -13,18 +14,37 @@ class ProfileController extends Controller
     }
 
     public function update(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . Auth::id(),
+    {   
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|min:3|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
         ]);
 
-        Auth::user()->update($request->only('name', 'email'));
+        $user->update($validated);
 
         return redirect()->route('profile.index')->with('success', 'Profile updated!');
     }
 
-    public function changePass(Request $request) {
-        //
+    public function changePassword(Request $request) {
+        $user = Auth::user();
+
+        $request->validate([
+            'old_password' => 'required',
+            'new_password' => 'required|min:8|confirmed',
+        ]);
+
+        if (!Hash::check($request->old_password, $user->password)) {
+            return back()->withErrors([
+                'old_password' => 'Old password is incorrect.'
+            ]);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password),
+        ]);
+
+        return back()->with('success', 'Password updated successfully.');
     }
 }

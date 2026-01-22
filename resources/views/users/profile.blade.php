@@ -42,7 +42,7 @@
                 <button type="button"
                         id="editBtn"
                         class="btn btn-primary px-3">
-                    <i class="bi bi-pen me-2"></i>Edit
+                    <i class="bi bi-pen-fill me-2"></i>Edit
                 </button>
 
                 <button type="button"
@@ -57,7 +57,7 @@
                     class="btn btn-secondary px-3"
                     data-bs-toggle="modal"
                     data-bs-target="#changePasswordModal">
-                <i class="bi bi-key me-2"></i>Change Password
+                <i class="bi bi-key-fill me-2"></i>Change Password
             </button>
         </div>  
     </div>
@@ -205,7 +205,7 @@ $(document).ready(function () {
 
         // Restore Edit button appearance
         $editBtn
-            .html('<i class="bi bi-pen me-2"></i>Edit')
+            .html('<i class="bi bi-pen-fill me-2"></i>Edit')
             .removeClass('btn-success')
             .addClass('btn-primary');
 
