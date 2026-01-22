@@ -14,9 +14,8 @@
                     @if ($state === 'masuk')
                         <div class="mb-3">
                             <label class="form-label">Status</label>
-                            <select id="statusSelect" name="status" class="form-select">
-                                <option disabled selected>Pilih status absensi</option>
-                                <option value="hadir">Hadir</option>
+                            <select id="statusSelect" name="status" class="form-select" required>
+                                <option selected value="hadir">Hadir</option>
                                 <option value="izin">Izin</option>
                             </select>
                         </div>
