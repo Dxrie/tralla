@@ -80,9 +80,9 @@
 
         <!-- To Do List -->
         <li class="nav-item">
-            <a href="{{ route('todo.index') }}" class="nav-link link-dark d-flex align-items-center">
-                <i class="bi bi-check-circle me-3"></i>
-                <span>To Do List</span>
+            <a href="{{ route('peminjaman.index') }}" class="nav-link link-dark d-flex align-items-center">
+                <i class="bi bi-box me-3"></i>
+                <span>Peminjaman Barang</span>
             </a>
         </li>
 
@@ -151,8 +151,4 @@
         </ul>
     </div> --}}
 </div>
-<<<<<<< HEAD
 @endif
-=======
-@endif
->>>>>>> 5994d92 (Rework Git Conflicts #2)
