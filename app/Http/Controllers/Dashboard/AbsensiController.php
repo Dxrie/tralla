@@ -69,6 +69,8 @@ class AbsensiController extends Controller
 
         if ($status === 'absent') {
             $message = 'Izin berhasil diajukan.';
+
+            return redirect()->route('izin.index')->with('success', $message);
         } else {
             $message = $status === 'late'
                 ? 'Absensi berhasil, namun anda tercatat terlambat.'

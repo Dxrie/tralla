@@ -3,6 +3,14 @@
 @section('title', 'Data Izin - Tralla')
 
 @section('content')
+    @if (session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
             <table class="table table-hover scrollable-tbody mb-0">
