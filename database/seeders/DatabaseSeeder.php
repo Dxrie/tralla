@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('users')->insert([
+        User::factory()->createMany([
             [
                 'name' => 'Colin Edric Mickynson',
                 'email' => 'colinedric04@gmail.com',
