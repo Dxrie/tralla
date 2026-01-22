@@ -20,11 +20,8 @@
     <x-navbar />
 
     <main class="d-flex flex-grow-1 overflow-hidden">
-        <x-sidebar />
-
         <!-- Main Content Area -->
-        <div class="flex-grow-1 p-4 bg-secondary bg-opacity-25"
-            style="overflow-y: auto; overflow-x: hidden; min-width: 0;">
+        <div class="flex-grow-1 bg-secondary bg-opacity-25" style="overflow-y: auto; overflow-x: hidden; min-width: 0;">
             @yield('content')
         </div>
     </main>
