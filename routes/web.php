@@ -10,15 +10,15 @@ use App\Http\Controllers\Dashboard\PeminjamanController;
 use App\Http\Controllers\Dashboard\TodoController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
-
 Route::get('/about', function () {
     return view('about');
 })->name('about');
 
 Route::middleware('guest')->group(function () {
+    Route::get('/', function () {
+        return view('home');
+    })->name('home');
+
     Route::controller(LoginController::class)->group(function () {
         Route::get('/login', 'index')->name('login');
         Route::post('/login', 'login')->name('login.post');
@@ -35,7 +35,9 @@ Route::middleware('auth')->group(function () {
 
         Route::controller(AbsensiController::class)->group(function () {
             Route::get('/absensi-masuk', 'masuk')->name('absensi.masuk');
+            Route::post('/absensi-masuk', 'masukStore')->name('absensi.masuk.store');
             Route::get('/absensi-keluar', 'keluar')->name('absensi.keluar');
+            Route::post('/absensi-keluar', 'keluarStore')->name('absensi.keluar.store');
         });
 
         Route::controller(IzinController::class)->group(function () {
@@ -45,6 +47,7 @@ Route::middleware('auth')->group(function () {
         Route::controller(ProfileController::class)->group(function () {
             Route::get('/profile', 'index')->name('profile.index');
             Route::put('/profile/update', 'update')->name('profile.update');
+            Route::put('/profile/change-password', 'changePass')->name('profile.change-pass');
         });
     });
 
