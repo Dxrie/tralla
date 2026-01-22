@@ -3,4 +3,5 @@
 @section('title', 'Dashboard • Tralla')
 
 @section('content')
+
 @endsection

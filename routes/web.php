@@ -62,6 +62,11 @@ Route::middleware('auth')->group(function () {
 
     Route::controller(PeminjamanController::class)->group(function () {
         Route::get('/peminjaman', 'index')->name('peminjaman.index');
+        Route::get('/peminjaman/create', 'create')->name('peminjaman.create');
+        Route::post('/peminjaman', 'store')->name('peminjaman.store');
+        Route::get('/peminjaman/{id}/edit', [PeminjamanController::class, 'edit'])->name('peminjaman.edit');
+        Route::delete('/peminjaman/{id}', [PeminjamanController::class, 'destroy'])->name('peminjaman.destroy');
+        Route::put('/peminjaman/{id}', [PeminjamanController::class, 'update'])->name('peminjaman.update');
     });
 
     Route::controller(LaporanController::class)->group(function () {
