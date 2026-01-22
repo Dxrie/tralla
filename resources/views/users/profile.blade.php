@@ -32,7 +32,7 @@
                 </div>
                 <div class="d-flex flex-row gap-2 align-items-center">
                     <label for="role" style="width: 30%" class="fw-medium">Date as Employee</label>
-                    <p style="width: 70%" class="text-capitalize form-control-p bg-light m-0">{{ $user->created_at->format("d F Y") }}</p>
+                    <p style="width: 70%" class="text-capitalize form-control-p bg-light m-0">{{ $user->created_at?->format("d F Y") ?? "-" }}</p>
                 </div>
             </form>
 
@@ -66,7 +66,7 @@
 <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow rounded-3">
-            <div class="modal-header bg-primary text-light">
+            <div class="modal-header">
                 <h5 class="modal-title">Change Password</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
