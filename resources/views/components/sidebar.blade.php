@@ -4,7 +4,9 @@
             <div class="d-flex justify-content-center align-items-center flex-column mb-2">
                 <div class="position-relative" style="width: 56px; height: 56px;">
                     <img draggable="false"
-                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR1Ge5ZNd1jtWQIUJVaZhczOC8H1JNSlg443g&s"
+                        src="{{ $user->avatar
+                                ? asset('storage/' . $user->avatar)
+                                : asset('images/default-avatar.png') }}"
                         class="w-100 h-100 object-fit-cover rounded-circle border" alt="{{ $user->name ?? 'User' }}">
                 </div>
                 <span class="mt-2 px-2 fw-medium text-dark">{{ $user->name ?? 'User' }}</span>
