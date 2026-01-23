@@ -8,7 +8,7 @@
     <section class="d-flex align-items-center position-relative overflow-hidden"
         style="min-height: 85vh; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
         <div class="container">
-            <div class="row align-items-center g-5">
+            <div class="row align-items-center g-5 py-4">
                 {{-- Left Text --}}
                 <div class="col-lg-6 text-center text-lg-start z-1">
                     <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3 fw-bold">
@@ -24,11 +24,12 @@
                     </p>
                     <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
                         <a href="{{ route('login') }}"
-                            class="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold shadow-sm transition-hover">
-                            Masuk Sekarang <i class="bi bi-arrow-right ms-2"></i>
+                            class="btn btn-primary btn-lg px-4 py-2 rounded-pill fw-bold shadow-sm transition-hover">
+                            Mulai Sekarang <i class="bi bi-arrow-right ms-2"></i>
                         </a>
-                        {{-- Jika ada route register --}}
-                        {{-- <a href="{{ route('register') }}" class="btn btn-outline-secondary btn-lg px-4 py-3 rounded-pill fw-bold">Daftar</a> --}}
+                        @if (!Auth::user())
+                            <a href="{{ route('register') }}" class="btn btn-outline-secondary btn-lg px-4 py-2 rounded-pill fw-bold">Daftar</a>
+                        @endif
                     </div>
 
                     {{-- Small Trust Indicators --}}
@@ -49,7 +50,7 @@
                 <div class="col-lg-6 position-relative">
                     {{-- Decorative Blobs --}}
                     <div class="position-absolute top-50 start-50 translate-middle bg-primary opacity-10 rounded-circle"
-                        style="width: 500px; height: 500px; filter: blur(80px); z-index: 0;"></div>
+                        style="width: 400px; height: 400px; filter: blur(80px); z-index: 0;"></div>
                 </div>
             </div>
         </div>

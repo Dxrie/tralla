@@ -29,14 +29,9 @@
                                     <span class="input-group-text bg-light border-end-0">
                                         <i class="bi bi-envelope text-muted"></i>
                                     </span>
-                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
+                                    <input type="email" class="form-control @error('authError') is-invalid @enderror"
                                         id="email" name="email" value="{{ old('email') }}" required autofocus>
                                 </div>
-                                @error('email')
-                                    <div class="invalid-feedback d-block">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
                             </div>
 
                             <!-- Password Input -->
@@ -46,13 +41,13 @@
                                     <span class="input-group-text bg-light border-end-0">
                                         <i class="bi bi-lock text-muted"></i>
                                     </span>
-                                    <input type="password" class="form-control @error('password') is-invalid @enderror"
+                                    <input type="password" class="form-control @error('authError') is-invalid @enderror"
                                         id="password" name="password" required>
                                     <button class="btn btn-light border" type="button" id="togglePassword">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                 </div>
-                                @error('password')
+                                @error('authError')
                                     <div class="invalid-feedback d-block">
                                         {{ $message }}
                                     </div>
@@ -117,49 +112,4 @@
             });
         </script>
     @endpush
-
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-        }
-
-        .card {
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .input-group-text {
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus+.input-group-text {
-            border-color: #667eea;
-        }
-
-        #togglePassword:hover {
-            background-color: #f8f9fa;
-        }
-    </style>
 @endsection

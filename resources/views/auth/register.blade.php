@@ -79,8 +79,8 @@
                             <!-- Remember Me & Forgot Password -->
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="ToS" id="ToS">
-                                    <label class="form-check-label text-muted" for="ToS">
+                                    <input class="form-check-input" type="checkbox" name="ToS" id="ToS" required>
+                                    <label class="form-check-label text-muted" style="font-size: 0.925rem" for="ToS">
                                         I have read and agreed with the <a href="" class="">Terms &
                                             Services</a>.
                                     </label>
@@ -132,50 +132,5 @@
             });
         </script>
     @endpush
-
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-        }
-
-        .card {
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .input-group-text {
-            transition: all 0.3s ease;
-        }
-
-        .form-control:focus+.input-group-text {
-            border-color: #667eea;
-        }
-
-        #togglePassword:hover {
-            background-color: #f8f9fa;
-        }
-    </style>
 @endsection
 

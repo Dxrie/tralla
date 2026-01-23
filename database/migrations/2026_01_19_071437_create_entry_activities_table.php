@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->enum('status', ['late', 'ontime']);
-            $table->string('image_path');
+            $table->string('image_path')->unique();
             $table->timestamps();
         });
     }

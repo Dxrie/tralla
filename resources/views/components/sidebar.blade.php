@@ -87,53 +87,6 @@
                         <span>Peminjaman Barang</span>
                     </a>
                 </li>
-
-                <!-- Laporan Dropdown -->
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('laporan.*') ? 'active' : 'link-dark' }} d-flex align-items-center justify-content-between"
-                        data-bs-toggle="collapse" href="#laporanCollapse" role="button"
-                        aria-expanded="{{ request()->routeIs('laporan.*') ? 'true' : 'false' }}"
-                        aria-controls="laporanCollapse">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-file-text-fill me-3"></i>
-                            <span>Laporan</span>
-                        </div>
-                        <i class="bi bi-chevron-right collapse-chevron"></i>
-                    </a>
-
-                    <div class="collapse" id="laporanCollapse">
-                        <ul class="nav flex-column ps-4">
-                            <li class="nav-item">
-                                <a href="#"
-                                    class="nav-link {{ request()->routeIs('laporan.project.index') ? 'active' : 'link-dark' }} d-flex align-items-center py-2">
-                                    <i class="bi bi-person-workspace me-2"></i>
-                                    <span>Project</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#"
-                                    class="nav-link {{ request()->routeIs('laporan.kehadiran.index') ? 'active' : 'link-dark' }} d-flex align-items-center py-2">
-                                    <i class="bi bi-check-circle-fill me-2"></i>
-                                    <span>Kehadiran</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#"
-                                    class="nav-link {{ request()->routeIs('laporan.keterlambatan.index') ? 'active' : 'link-dark' }} d-flex align-items-center py-2">
-                                    <i class="bi bi-exclamation-circle-fill me-2"></i>
-                                    <span>Keterlambatan</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#"
-                                    class="nav-link {{ request()->routeIs('laporan.ketidakhadiran.index') ? 'active' : 'link-dark' }} d-flex align-items-center py-2">
-                                    <i class="bi bi-question-circle-fill me-2"></i>
-                                    <span>Ketidakhadiran</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
             </ul>
         </div>
     </div>
