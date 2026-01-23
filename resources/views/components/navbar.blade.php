@@ -54,7 +54,7 @@
                     <li class="nav-item h-100">
                         <a class="nav-link text-dark h-100 d-flex align-items-center" href="{{ route('register') }}"
                             title="Register">
-                            <button class="btn btn-secondary px-4 rounded-pill fw-semibold">
+                            <button class="btn btn-outline-secondary px-4 rounded-pill fw-semibold">
                                 Register
                             </button>
                         </a>
