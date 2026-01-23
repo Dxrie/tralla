@@ -120,6 +120,7 @@
                     @empty
                         <tr>
                             <td colspan="6" class="text-center text-muted py-4">
+                                <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
                                 Belum ada data absensi untuk hari ini.
                             </td>
                         </tr>
