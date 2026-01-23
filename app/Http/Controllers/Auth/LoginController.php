@@ -33,7 +33,7 @@ class LoginController extends Controller
         // If authentication fails
         return back()->withErrors([
             'authError' => 'Please check your email and password again.',
-        ])->onlyInput('email');
+        ])->onlyInput('authError');
     }
 
     public function logout()
