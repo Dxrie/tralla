@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('exit_activities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
-            $table->string('image_path');
+            $table->string('image_path')->unique();
             $table->timestamps();
         });
     }
