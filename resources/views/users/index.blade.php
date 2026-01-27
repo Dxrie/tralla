@@ -208,7 +208,7 @@
                                         --
                                     @endif
                                 </h4>
-                                <p class="text-muted mb-0">Check-in</p>
+                                <p class="text-muted mb-0">Absen Masuk</p>
                                 @if($todaysEntries->count() > 0)
                                     <span class="badge bg-{{ $todaysEntries->first()->status == 'ontime' ? 'success' : 'danger' }}">
                                         {{ ucfirst($todaysEntries->first()->status) }}
@@ -217,8 +217,8 @@
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="text-center p-3 rounded bg-light">
-                                <i class="bi bi-box-arrow-right display-6 text-info mb-2"></i>
+                            <div class="h-100 text-center p-3 rounded bg-light">
+                                <i class="bi bi-box-arrow-right display-6 text-primary mb-2"></i>
                                 <h4 class="mb-1">
                                     @if($todaysExits->count() > 0)
                                         {{ $todaysExits->first()->created_at->format('H:i') }}
@@ -226,17 +226,17 @@
                                         --
                                     @endif
                                 </h4>
-                                <p class="text-muted mb-0">Check-out</p>
+                                <p class="text-muted mb-0">Absen Pulang</p>
                             </div>
                         </div>
                     </div>
                     
                     <div class="mt-4">
-                        <a href="#" class="btn btn-primary w-100 mb-2">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Check-in Today
+                        <a href="{{ route('absensi.masuk') }}" class="btn btn-primary w-100 mb-2">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Absen Masuk
                         </a>
-                        <a href="#" class="btn btn-outline-primary w-100">
-                            <i class="bi bi-box-arrow-right me-2"></i>Check-out
+                        <a href="{{ route('absensi.keluar') }}" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-box-arrow-right me-2"></i>Absen Pulang
                         </a>
                     </div>
                 </div>
@@ -276,7 +276,7 @@
             {{-- Pending Absences & Quick Actions --}}
             <div class="col-12">
                 <div class="row g-4">
-                    <div class="col-lg-8">
+                    <div class="col-lg-12">
                         <div class="bg-white rounded-3 shadow-sm p-4 h-100">
                             <h5 class="mb-4">My Absence Requests</h5>
                             @if($pendingAbsents->count() > 0)
@@ -302,7 +302,7 @@
                             @endif
                         </div>
                     </div>
-                    <div class="col-lg-4">
+                    {{-- <div class="col-lg-4">
                         <div class="bg-white rounded-3 shadow-sm p-4 h-100">
                             <h5 class="mb-4">Quick Actions</h5>
                             <div class="d-grid gap-2">
@@ -317,7 +317,7 @@
                                 </a>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         @endif
