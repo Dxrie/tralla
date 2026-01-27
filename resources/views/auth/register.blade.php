@@ -90,6 +90,7 @@
                             <!-- Submit Button -->
                             <div class="d-grid mb-4">
                                 <button type="submit" class="btn btn-primary btn-md fw-medium py-2">
+                                    <span class="spinner-border spinner-border-sm d-none" id="registerSpinner"></span>
                                     Register
                                     <i class="bi bi-arrow-right ms-2"></i>
                                 </button>
@@ -123,6 +124,13 @@
 
                     icon.toggleClass('bi-eye bi-eye-slash');
                 });
+
+                $('form').on('submit', function () {
+                    const $btn = $(this).find('button[type="submit"]')
+
+                    $btn.prop('disabled', true)
+                    $btn.find('#registerSpinner').removeClass('d-none')
+                })
 
                 setTimeout(function() {
                     $('.alert').fadeOut(500, function() {
