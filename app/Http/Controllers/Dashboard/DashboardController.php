@@ -51,7 +51,7 @@ class DashboardController extends Controller
             $lateToday = $todaysEntries->where('status', 'late')->count();
             $onTimeToday = $todaysEntries->where('status', 'ontime')->count();
 
-            return view('dashboard', compact(
+            return view('users.index', compact(
                 'user',
                 'todaysEntries',
                 'todaysExits',
@@ -88,12 +88,11 @@ class DashboardController extends Controller
                 
             $lateThisMonth = $monthEntries->where('status', 'late')->count();
             $onTimeThisMonth = $monthEntries->where('status', 'ontime')->count();
-            return view('dashboard', compact(
+            return view('users.index', compact(
                 'user',
                 'todaysEntries',
                 'todaysExits',
                 'pendingAbsents',
-                'totalEmployees',
                 'lateThisMonth',
                 'onTimeThisMonth'
         ));

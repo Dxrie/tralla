@@ -15,6 +15,8 @@
             margin: 0;
         }
     </style>
+
+    @livewireStyles
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -31,6 +33,8 @@
     </main>
 
     @stack('scripts')
+    @livewireScripts
+    @livewireScriptConfig
 </body>
 
 </html>

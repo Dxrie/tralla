@@ -47,10 +47,14 @@
             background-color: #f8f9fa;
         }
     </style>
+
+    @livewireStyles
 </head>
 <body class="">
     @yield('content')
 
     @stack('scripts')
+    @livewireScripts
+    @livewireScriptConfig
 </body>
 </html>
