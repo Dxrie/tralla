@@ -29,7 +29,7 @@
                                     <span class="input-group-text bg-light border-end-0">
                                         <i class="bi bi-envelope text-muted"></i>
                                     </span>
-                                    <input type="email" class="form-control @error('authError') is-invalid @enderror"
+                                    <input type="email" class="form-control @error('email') is-invalid @enderror"
                                         id="email" name="email" value="{{ old('email') }}" required autofocus>
                                 </div>
                             </div>
@@ -41,13 +41,13 @@
                                     <span class="input-group-text bg-light border-end-0">
                                         <i class="bi bi-lock text-muted"></i>
                                     </span>
-                                    <input type="password" class="form-control @error('authError') is-invalid @enderror"
+                                    <input type="password" class="form-control @error('email') is-invalid @enderror"
                                         id="password" name="password" required>
                                     <button class="btn btn-light border" type="button" id="togglePassword">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                 </div>
-                                @error('authError')
+                                @error('email')
                                     <div class="invalid-feedback d-block">
                                         {{ $message }}
                                     </div>
@@ -70,6 +70,7 @@
                             <!-- Submit Button -->
                             <div class="d-grid mb-4">
                                 <button type="submit" class="btn btn-primary btn-md fw-medium py-2">
+                                    <span class="spinner-border spinner-border-sm d-none" id="loginSpinner"></span>
                                     Sign In
                                     <i class="bi bi-arrow-right ms-2"></i>
                                 </button>
@@ -94,6 +95,9 @@
     @push('scripts')
         <script type="module">
             $(function() {
+                $('button[type="submit"]').prop('disabled', false)
+                $('#loginSpinner').addClass('d-none')
+
                 $('#togglePassword').on('click', function() {
                     const passwordInput = $('#password');
                     const icon = $(this).find('i');
@@ -103,6 +107,13 @@
 
                     icon.toggleClass('bi-eye bi-eye-slash');
                 });
+
+                $('form').on('submit', function () {
+                    const $btn = $(this).find('button[type="submit"]')
+
+                    $btn.prop('disabled', true)
+                    $btn.find('#loginSpinner').removeClass('d-none')
+                })
 
                 setTimeout(function() {
                     $('.alert').fadeOut(500, function() {

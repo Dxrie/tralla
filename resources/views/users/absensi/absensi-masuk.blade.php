@@ -4,29 +4,6 @@
 
 @section('content')
     <style>
-        .scrollable-tbody tbody {
-            display: block;
-            flex-grow: 1;
-            overflow-y: scroll;
-            width: 100%;
-        }
-
-        .scrollable-tbody thead,
-        .scrollable-tbody tbody tr {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }
-
-        *::-webkit-scrollbar {
-            display: none;
-        }
-
-        * {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
         #customPopup {
             display: none;
             position: fixed;
@@ -59,7 +36,7 @@
     @endif
 
     <div class="w-100 h-100 d-flex flex-column gap-4">
-        <div class="w-100 h-50 rounded-3 p-3 d-flex flex-column overflow-hidden">
+        <div class="w-100 h-100 rounded-3 p-3 d-flex flex-column">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h3 class="fw-bold">Absensi Masuk</h3>
 
