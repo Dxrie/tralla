@@ -112,7 +112,6 @@
                             });
 
                             form.reset();
-                            console.log("Test");
 
                             await Swal.fire({
                                 title: 'Success',
@@ -120,6 +119,10 @@
                                 text: res.message,
                                 timer: 5000,
                             });
+
+                            if (res.redirect) {
+                                window.location.href = res.redirect;
+                            }
                         }
                     },
                     error: async function(res) {},

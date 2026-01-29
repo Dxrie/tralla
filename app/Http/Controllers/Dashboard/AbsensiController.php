@@ -70,18 +70,18 @@ class AbsensiController extends Controller
         if ($status === 'absent') {
             $message = 'Izin berhasil diajukan.';
         } else {
+            $html = view('components.absensi-masuk-row', compact('entry'))->render();
+
             $message = $status === 'late'
                 ? 'Absensi berhasil, namun anda tercatat terlambat.'
                 : 'Absensi berhasil! Selamat bekerja.';
         }
 
-        $html = view('components.absensi-masuk-row', compact('entry'))->render();
-
         return response()->json([
             'status' => 'success',
             'message' => $message,
-            'redirect' => $status === 'absent' ? 'izin.index' : null,
-            'html' => $html,
+            'redirect' => $status === 'absent' ? route('izin.index') : null,
+            'html' => $html ?? null,
         ], 201);
     }
 
