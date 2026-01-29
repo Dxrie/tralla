@@ -19,6 +19,7 @@
         "@ryangjchandler/alpine-clipboard": "^2.3.0",
         "bootstrap": "^5.3.8",
         "jquery": "^4.0.0",
-        "sass": "^1.97.2"
+        "sass": "^1.97.2",
+        "sweetalert2": "^11.26.17"
     }
 }

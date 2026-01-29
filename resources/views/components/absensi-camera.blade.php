@@ -74,12 +74,62 @@
             $('#submitBtn').prop('disabled', false);
             $('#submitSpinner').addClass('d-none');
 
-            $('form').on('submit', function() {
+            $('#attendanceForm').on('submit', function(e) {
+                e.preventDefault();
+
+                const form = this;
+                const formData = new FormData(form);
+
                 const $btn = $('#submitBtn');
 
-                $btn.prop('disabled', true);
-                $btn.find('#submitSpinner').removeClass('d-none');
+                $.ajax({
+                    url: $(form).attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    dataType: 'json',
+                    beforeSend: function() {
+                        $btn.prop('disabled', true);
+                        $btn.find('#submitSpinner').removeClass('d-none');
+                    },
+                    success: async function(res) {
+                        if (res.status === 'success') {
+                            $('#attendanceModal [data-bs-dismiss="modal"]').trigger('click');
+
+                            const $tbody = $('.scrollable-tbody tbody');
+
+                            if ($tbody.text().includes('Belum ada data absensi')) {
+                                $tbody.empty();
+                            }
+
+                            if (res.html) {
+                                $tbody.prepend(res.html);
+                            }
+
+                            $tbody.find('tr').each(function(index) {
+                                $(this).find('td:first').text(index + 1);
+                            });
+
+                            form.reset();
+                            console.log("Test");
+
+                            await Swal.fire({
+                                title: 'Success',
+                                icon: 'success',
+                                text: res.message,
+                                timer: 5000,
+                            });
+                        }
+                    },
+                    error: async function(res) {},
+                    complete: function() {
+                        $('#submitBtn').prop('disabled', false);
+                        $('#submitSpinner').addClass('d-none');
+                        $('#no-absent').addClass('d-none');
+                    }
+                });
             })
-        })
+        });
     </script>
 @endpush
