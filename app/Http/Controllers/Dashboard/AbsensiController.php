@@ -53,7 +53,7 @@ class AbsensiController extends Controller
             $filePath = 'absensi_masuk/' . uniqid() . '.jpg';
             Storage::disk('public')->put($filePath, $image_base64);
 
-            EntryActivity::create([
+            $entry = EntryActivity::create([
                 'user_id'    => Auth::id(),
                 'status'     => $status,
                 'image_path' => $filePath,
@@ -69,15 +69,20 @@ class AbsensiController extends Controller
 
         if ($status === 'absent') {
             $message = 'Izin berhasil diajukan.';
-
-            return redirect()->route('izin.index')->with('success', $message);
         } else {
+            $html = view('components.absensi-masuk-row', compact('entry'))->render();
+
             $message = $status === 'late'
                 ? 'Absensi berhasil, namun anda tercatat terlambat.'
                 : 'Absensi berhasil! Selamat bekerja.';
         }
 
-        return redirect()->back()->with('success', $message);
+        return response()->json([
+            'status' => 'success',
+            'message' => $message,
+            'redirect' => $status === 'absent' ? route('izin.index') : null,
+            'html' => $html ?? null,
+        ], 201);
     }
 
     public function keluarStore(Request $request)
@@ -97,13 +102,19 @@ class AbsensiController extends Controller
             $imagePath = $filePath;
         }
 
-        ExitActivity::create([
+        $entry = ExitActivity::create([
             'user_id' => Auth::id(),
             'image_path' => $imagePath,
         ]);
 
         $message = 'Absensi berhasil! Hati-hati di Jalan.';
+        $html = view('components.absensi-keluar-row', compact('entry'))->render();
 
-        return redirect()->back()->with('success', $message);
+        return response()->json([
+            'status' => 'success',
+            'message' => $message,
+            'redirect' => null,
+            'html' => $html,
+        ]);
     }
 }
