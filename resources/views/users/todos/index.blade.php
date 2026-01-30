@@ -410,15 +410,9 @@ $(function() {
             success: function (res) {
                 Swal.fire(
                     'Success',
-                    'Berhasil menandai selesai.',
+                    'This subtask has now been marked done!',
                     'success'
                 );
-
-                if (res.is_done) {
-                    $span.addClass('text-decoration-line-through text-muted');
-                } else {
-                    $span.removeClass('text-decoration-line-through text-muted');
-                }
             },
             error: function (xhr) {
                 // Revert checkbox on error
