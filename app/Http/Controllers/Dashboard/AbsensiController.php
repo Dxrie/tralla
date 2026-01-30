@@ -42,6 +42,17 @@ class AbsensiController extends Controller
             'keterangan' => 'required_if:status,izin',
         ]);
 
+        $todayEntry = EntryActivity::where('user_id', Auth::id())
+            ->whereDate('created_at', Carbon::today())
+            ->first();
+
+        if ($todayEntry) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Anda sudah melakukan absen masuk hari ini.',
+            ], 400);
+        }
+
         $deadline = Carbon::now()->setTime(9, 0, 0);
 
         if ($validated['status'] === 'hadir') {
@@ -90,6 +101,17 @@ class AbsensiController extends Controller
         $validated = $request->validate([
             'image_base64' => 'required',
         ]);
+
+        $todayEntry = ExitActivity::where('user_id', Auth::id())
+            ->whereDate('created_at', Carbon::today())
+            ->first();
+
+        if ($todayEntry) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Anda sudah melakukan absen pulang hari ini.',
+            ], 400);
+        }
 
         $imagePath = null;
 

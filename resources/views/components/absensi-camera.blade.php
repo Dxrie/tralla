@@ -125,7 +125,14 @@
                             }
                         }
                     },
-                    error: async function(res) {},
+                    error: async function(res) {
+                        await Swal.fire({
+                            title: 'Error',
+                            icon: 'error',
+                            text: res.responseJSON.message,
+                            timer: 5000,
+                        });
+                    },
                     complete: function() {
                         $('#submitBtn').prop('disabled', false);
                         $('#submitSpinner').addClass('d-none');
