@@ -10,15 +10,10 @@ class PeminjamanController extends Controller
 {
     public function index()
     {
-        $borrows = Borrow::all();
+        $borrows = Borrow::latest()->get();
         return view('users.peminjaman.index', compact('borrows'));
     }
-
-    public function create()
-    {
-        return view('users.peminjaman.create');
-    }
-
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -35,26 +30,24 @@ class PeminjamanController extends Controller
             'foto_barang' => $foto,
         ]);
 
-        return redirect()
-            ->route('peminjaman.index')
-            ->with('success', 'Barang berhasil dipinjam');
+        return redirect()->route('peminjaman.index')->with('success', 'Barang berhasil dipinjam');
     }
 
-    public function edit($id)
+    public function edit(Borrow $borrow)
     {
-        $borrow = Borrow::findOrFail($id);
-        return view('users.peminjaman.edit', compact('borrow'));
+        $borrow = Borrow::findOrFail($borrow->id);
+        return response()->json($borrow);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Borrow $borrow)
     {
-        $borrow = Borrow::findOrFail($id);
-
         $request->validate([
             'nama_barang' => 'required|string|max:255',
             'divisi' => 'required',
             'foto_barang' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
+
+        $borrow = Borrow::findOrFail($borrow->id);
 
         if ($request->hasFile('foto_barang')) {
             $foto = $request->file('foto_barang')->store('barang', 'public');
@@ -65,9 +58,7 @@ class PeminjamanController extends Controller
         $borrow->divisi = $request->divisi;
         $borrow->save();
 
-        return redirect()
-            ->route('peminjaman.index')
-            ->with('success', 'Data peminjaman berhasil diperbarui');
+        return redirect()->route('peminjaman.index')->with('success', 'Barang berhasil diperbarui');
     }
     
     public function destroy($id)
