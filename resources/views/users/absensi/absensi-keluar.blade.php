@@ -4,29 +4,6 @@
 
 @section('content')
     <style>
-        .scrollable-tbody tbody {
-            display: block;
-            flex-grow: 1;
-            overflow-y: scroll;
-            width: 100%;
-        }
-
-        .scrollable-tbody thead,
-        .scrollable-tbody tbody tr {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }
-
-        *::-webkit-scrollbar {
-            display: none;
-        }
-
-        * {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
         #customPopup {
             display: none;
             position: fixed;
@@ -59,21 +36,21 @@
     @endif
 
     <div class="w-100 h-100 d-flex flex-column gap-4">
-        <div class="w-100 h-50 rounded-3 p-3 d-flex flex-column overflow-hidden">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="fw-bold">Absensi Pulang</h3>
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="fw-bold">Absensi Pulang</h3>
 
-                <button id="openModalBtn" type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
-                    data-bs-toggle="modal" data-bs-target="#attendanceModal">
-                    <i class="bi bi-plus-lg"></i>
-                    <span>Tambah Absensi</span>
-                </button>
+            <button id="openModalBtn" type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
+                data-bs-toggle="modal" data-bs-target="#attendanceModal">
+                <i class="bi bi-plus-lg"></i>
+                <span>Tambah Absensi</span>
+            </button>
 
-                <x-absensi-camera />
-            </div>
+            <x-absensi-camera />
+        </div>
 
-            <table class="table table-hover scrollable-tbody mb-0">
-                <thead class="table-light">
+        <div class="w-100 rounded-2 bg-white p-3">
+            <table class="table table-hover mb-0" style="font-size: 0.925rem">
+                <thead>
                     <tr>
                         <th style="width: 5%;">No</th>
                         <th style="width: 20%;">Name</th>

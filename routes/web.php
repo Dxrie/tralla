@@ -52,10 +52,9 @@ Route::middleware('auth')->group(function () {
     Route::controller(TodoController::class)->group(function () {
         Route::get('/todo', 'index')->name('todo.index');
         Route::post('/todo', 'store')->name('todo.store');
-        Route::get('/todo/create', 'create')->name('todo.create');
-        Route::get('/todo/{todo}/edit', 'edit')->name('todo.edit');
         Route::put('/todo/{todo}', 'update')->name('todo.update');
         Route::delete('/todo/{todo}', 'destroy')->name('todo.destroy');
+        Route::patch('/todo/subtask/{todo}/toggle', 'toggleSubtask')->name('todo.subtask.toggle');
     });
 
     Route::controller(PeminjamanController::class)->group(function () {
