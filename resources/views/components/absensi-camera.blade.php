@@ -71,10 +71,6 @@
 @push('scripts')
     <script type="module">
         $(function() {
-            $('#submitCancelBtn').prop('disabled', false);
-            $('#submitBtn').prop('disabled', false);
-            $('#submitSpinner').addClass('d-none');
-
             $('#attendanceForm').on('submit', function(e) {
                 e.preventDefault();
 
@@ -82,7 +78,7 @@
                 const formData = new FormData(form);
 
                 const $btn = $('#submitBtn');
-
+                
                 $.ajax({
                     url: $(form).attr('action'),
                     method: 'POST',
@@ -128,8 +124,16 @@
                             }
                         }
                     },
-                    error: async function(res) {},
+                    error: async function(res) {
+                        await Swal.fire({
+                            title: 'Error',
+                            icon: 'error',
+                            text: res.responseJSON.message,
+                            timer: 5000,
+                        });
+                    },
                     complete: function() {
+                        $('#submitCancelBtn').prop('disabled', false);
                         $('#submitBtn').prop('disabled', false);
                         $('#submitSpinner').addClass('d-none');
                         $('#no-absent').addClass('d-none');
