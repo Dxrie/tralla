@@ -12,8 +12,8 @@ return new class extends Migration {
             $table->string('title');
             $table->string('description')->nullable();
             $table->enum('status', ['to-do', 'on progress', 'hold', 'done']);
-            $table->date('tanggal');
-            $table->timestamp('tanggal_selesai')->nullable();
+            $table->date('start_date');
+            $table->date('finish_date')->nullable();
             $table->timestamps();
         });
     }

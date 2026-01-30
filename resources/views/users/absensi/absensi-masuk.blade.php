@@ -36,21 +36,21 @@
     @endif
 
     <div class="w-100 h-100 d-flex flex-column gap-4">
-        <div class="w-100 h-100 rounded-3 p-3 d-flex flex-column">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="fw-bold">Absensi Masuk</h3>
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="fw-bold">Absensi Masuk</h3>
 
-                <button id="openModalBtn" type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
-                    data-bs-toggle="modal" data-bs-target="#attendanceModal">
-                    <i class="bi bi-plus-lg"></i>
-                    <span>Tambah Absensi</span>
-                </button>
+            <button id="openModalBtn" type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
+                data-bs-toggle="modal" data-bs-target="#attendanceModal">
+                <i class="bi bi-plus-lg"></i>
+                <span>Tambah Absensi</span>
+            </button>
 
-                <x-absensi-camera />
-            </div>
+            <x-absensi-camera />
+        </div>
 
-            <table class="table table-hover scrollable-tbody mb-0">
-                <thead class="table-light">
+        <div class="w-100 rounded-2 bg-white p-3">
+            <table class="table table-hover mb-0" style="font-size: 0.925rem">
+                <thead>
                     <tr>
                         <th style="width: 5%;">No</th>
                         <th style="width: 25%;">Name</th>

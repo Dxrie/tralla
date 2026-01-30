@@ -56,7 +56,7 @@
                     <canvas id="canvas" class="d-none"></canvas>
 
                     <div class="d-flex justify-content-end mt-4">
-                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-secondary me-2" id="submitCancelBtn" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
                             <span class="spinner-border spinner-border-sm d-none" id="submitSpinner"></span>
                             Simpan Absensi
@@ -71,12 +71,14 @@
 @push('scripts')
     <script type="module">
         $(function() {
+            $('#submitCancelBtn').prop('disabled', false);
             $('#submitBtn').prop('disabled', false);
             $('#submitSpinner').addClass('d-none');
 
             $('form').on('submit', function() {
                 const $btn = $('#submitBtn');
 
+                $('#submitCancelBtn').prop('disabled', true);
                 $btn.prop('disabled', true);
                 $btn.find('#submitSpinner').removeClass('d-none');
             })

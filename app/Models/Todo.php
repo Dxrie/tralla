@@ -13,8 +13,12 @@ class Todo extends Model
         'title',
         'description',
         'status',
-        'tanggal',
-        'tanggal_selesai'
+        'start_date',
+        'finish_date'
     ];
+
+    public function subtasks() {
+        return $this->hasMany(Subtask::class);
+    }
 }
 

@@ -13,7 +13,7 @@
             </div>
         </div>
 
-        @if(Auth::user()->role === 'employer')
+        @if(Auth::user()->role === 'employee')
             {{-- Employer Dashboard --}}
             
             {{-- Entry Activities (absen masuk) Statistic --}}

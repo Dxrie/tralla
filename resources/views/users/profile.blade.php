@@ -110,7 +110,6 @@
                 @csrf
                 @method('PUT')
                 <div class="modal-body d-flex flex-column gap-3">
-
                     <div>
                         <label class="fw-medium mb-1">Old Password</label>
                         <input type="password" class="form-control @error('old_password') is-invalid @enderror" value="{{ old('old_password') }}" name="old_password">
@@ -120,7 +119,6 @@
                             </div>
                         @enderror
                     </div>
-
                     <div>
                         <label class="fw-medium mb-1">New Password</label>
                         <input type="password" class="form-control @error('new_password') is-invalid @enderror" name="new_password">
@@ -130,7 +128,6 @@
                             </div>
                         @enderror
                     </div>
-
                     <div>
                         <label class="fw-medium mb-1">Confirm Password</label>
                         <input type="password" class="form-control @error('new_password_confirmation') is-invalid @enderror" name="new_password_confirmation">
@@ -144,7 +141,7 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" id="changePassCancelBtn" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-outline-danger" id="changePassCancelBtn" data-bs-dismiss="modal">
                         Cancel
                     </button>
                     <button type="submit" class="btn btn-primary" id="changePassBtn">
