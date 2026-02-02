@@ -38,6 +38,16 @@
                                     </div>
 
                                     <div class="col-md-6">
+                                        <label class="form-label">Divisi</label>
+                                        <select class="form-select" name="employees[0][division_id]">
+                                            <option value="">-</option>
+                                            @foreach ($divisions as $div)
+                                                <option value="{{ $div->id }}">{{ $div->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
                                         <label class="form-label">Role</label>
                                         <select class="form-select" name="employees[0][role]">
                                             <option value="employee" selected>Employee</option>
@@ -96,6 +106,16 @@
                 </div>
 
                 <div class="col-md-6">
+                    <label class="form-label">Divisi</label>
+                    <select class="form-select" name="employees[INDEX][division_id]">
+                        <option value="">-</option>
+                        @foreach ($divisions as $div)
+                            <option value="{{ $div->id }}">{{ $div->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-md-6">
                     <label class="form-label">Role</label>
                     <select class="form-select" name="employees[INDEX][role]">
                         <option value="employee" selected>Employee</option>
@@ -129,6 +149,15 @@
                         <label class="form-label">Email</label>
                         <input type="email" class="form-control" id="edit_email" name="email" required>
                         <div class="invalid-feedback"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Divisi</label>
+                        <select class="form-select" id="edit_division_id" name="division_id">
+                            <option value="">-</option>
+                            @foreach ($divisions as $div)
+                                <option value="{{ $div->id }}">{{ $div->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Role</label>

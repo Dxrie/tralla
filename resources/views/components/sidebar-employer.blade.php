@@ -34,6 +34,15 @@
                 </a>
             </li>
 
+            <!-- Divisi -->
+            <li class="nav-item">
+                <a href="{{ route('divisi.index') }}"
+                    class="nav-link {{ request()->routeIs('divisi.*') ? 'active' : 'link-dark' }} d-flex align-items-center">
+                    <i class="bi bi-diagram-3-fill me-3"></i>
+                    <span>Divisi</span>
+                </a>
+            </li>
+
             <!-- Absensi Dropdown -->
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('absensi.*') ? 'active' : 'link-dark' }} d-flex align-items-center justify-content-between"
