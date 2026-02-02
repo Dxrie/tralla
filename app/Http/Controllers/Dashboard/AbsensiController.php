@@ -14,22 +14,59 @@ use Illuminate\Validation\Rule;
 
 class AbsensiController extends Controller
 {
-    public function masuk()
+    public function masuk(Request $request)
     {
-        $todaysEntries = EntryActivity::with('user')
-            ->whereDate('created_at', Carbon::today())
-            ->latest()
-            ->get();
+        $perPage = (int) $request->integer('per_page', 10);
+        $perPage = max(1, min(100, $perPage));
 
-        return view('users.absensi.absensi-masuk', compact('todaysEntries'));
+        // Default: today, but allow date-range browsing via query params.
+        $from = $request->filled('from') ? Carbon::parse($request->string('from'))->startOfDay() : Carbon::today()->startOfDay();
+        $to = $request->filled('to') ? Carbon::parse($request->string('to'))->endOfDay() : Carbon::today()->endOfDay();
+
+        // Start Query
+        $query = EntryActivity::with('user')
+            ->whereBetween('created_at', [$from, $to]);
+
+        // 1. Search by Name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        // 2. Filter by Status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // 3. Pagination
+        $todaysEntries = $query->latest()->paginate($perPage)->withQueryString();
+        $state = 'masuk';
+
+        return view('users.absensi.absensi-masuk', compact('todaysEntries', 'state'));
     }
 
-    public function keluar()
+    public function keluar(Request $request)
     {
-        $todaysEntries = ExitActivity::with('user')
-            ->whereDate('created_at', Carbon::today())
-            ->latest()
-            ->get();
+        $perPage = (int) $request->integer('per_page', 10);
+        $perPage = max(1, min(100, $perPage));
+
+        $from = $request->filled('from') ? Carbon::parse($request->string('from'))->startOfDay() : Carbon::today()->startOfDay();
+        $to = $request->filled('to') ? Carbon::parse($request->string('to'))->endOfDay() : Carbon::today()->endOfDay();
+
+        $query = ExitActivity::with('user')
+            ->whereBetween('created_at', [$from, $to]);
+
+        // Search by Name
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $todaysEntries = $query->latest()->paginate($perPage)->withQueryString();
 
         return view('users.absensi.absensi-keluar', compact('todaysEntries'));
     }

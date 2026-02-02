@@ -2,6 +2,7 @@
 <tr id="employee-row-{{ $employee->id }}">
     <td>{{ $employee->name }}</td>
     <td>{{ $employee->email }}</td>
+    <td>{{ $employee->division?->name ?? '-' }}</td>
     <td>
         <span class="badge {{ $employee->role == 'employer' ? 'bg-primary' : 'bg-secondary' }}">
             {{ ucfirst($employee->role) }}

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Division;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,7 +12,7 @@ class EmployeeManagementController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::where('id', '!=', Auth::id());
+        $query = User::with('division')->where('id', '!=', Auth::id());
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -26,8 +27,9 @@ class EmployeeManagementController extends Controller
         }
 
         $employees = $query->latest()->paginate(10)->withQueryString();
+        $divisions = Division::query()->orderBy('name')->get();
 
-        return view('users.employees.index', compact('employees'));
+        return view('users.employees.index', compact('employees', 'divisions'));
     }
 
     public function store(Request $request)
@@ -38,6 +40,7 @@ class EmployeeManagementController extends Controller
             'employees.*.email' => 'required|email|unique:users,email',
             'employees.*.password' => 'required|string',
             'employees.*.role' => 'required|in:employee,employer',
+            'employees.*.division_id' => 'nullable|exists:divisions,id',
         ]);
 
         $newRowsHtml = '';
@@ -49,6 +52,7 @@ class EmployeeManagementController extends Controller
             $user->email = $data['email'];
             $user->password = $data['password'];
             $user->role = $data['role'];
+            $user->division_id = $data['division_id'] ?? null;
 
             $user->save();
 
@@ -71,11 +75,13 @@ class EmployeeManagementController extends Controller
             'email' => 'required|email|unique:users,email,' . $user->id,
             'role' => 'required|in:employee,employer',
             'password' => 'nullable|string',
+            'division_id' => 'nullable|exists:divisions,id',
         ]);
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
         $user->role = $validated['role'];
+        $user->division_id = $validated['division_id'] ?? null;
 
         if (!empty($validated['password'])) {
             $user->password = $validated['password'];

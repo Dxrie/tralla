@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\AbsensiController;
+use App\Http\Controllers\Dashboard\DivisionController;
 use App\Http\Controllers\Dashboard\EmployeeManagementController;
 use App\Http\Controllers\Dashboard\IzinController;
 use App\Http\Controllers\Dashboard\LaporanController;
@@ -56,6 +57,12 @@ Route::middleware('auth')->group(function () {
 
                 Route::put('/karyawan/{id}', 'update')->name('karyawan.update');
                 Route::delete('/karyawan/{id}', 'destroy')->name('karyawan.destroy');
+            });
+
+            Route::controller(DivisionController::class)->group(function () {
+                Route::get('/divisi', 'index')->name('divisi.index');
+                Route::post('/divisi', 'store')->name('divisi.store');
+                Route::delete('/divisi/{division}', 'destroy')->name('divisi.destroy');
             });
         });
     });
