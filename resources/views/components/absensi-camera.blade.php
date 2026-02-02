@@ -56,7 +56,8 @@
                     <canvas id="canvas" class="d-none"></canvas>
 
                     <div class="d-flex justify-content-end mt-4">
-                        <button type="button" class="btn btn-secondary me-2" id="submitCancelBtn" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-secondary me-2" id="submitCancelBtn"
+                            data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
                             <span class="spinner-border spinner-border-sm d-none" id="submitSpinner"></span>
                             Simpan Absensi
@@ -78,7 +79,7 @@
                 const formData = new FormData(form);
 
                 const $btn = $('#submitBtn');
-                
+
                 $.ajax({
                     url: $(form).attr('action'),
                     method: 'POST',
@@ -91,12 +92,11 @@
                         $btn.prop('disabled', true);
                         $btn.find('#submitSpinner').removeClass('d-none');
                     },
-                    
                     success: async function(res) {
                         if (res.status === 'success') {
                             $('#attendanceModal [data-bs-dismiss="modal"]').trigger('click');
 
-                            const $tbody = $('.scrollable-tbody tbody');
+                            const $tbody = $('tbody');
 
                             if ($tbody.text().includes('Belum ada data absensi')) {
                                 $tbody.empty();
@@ -113,8 +113,8 @@
                             form.reset();
 
                             await Swal.fire({
-                                title: 'Success',
-                                icon: 'success',
+                                title: res.data?.title ?? 'Success',
+                                icon: res.data?.icon ?? 'success',
                                 text: res.message,
                                 timer: 5000,
                             });

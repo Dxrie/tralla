@@ -26,6 +26,9 @@ class Sidebar extends Component
 
     public function render(): View|Closure|string
     {
-        return view('components.sidebar');
+        if (!$this->isAuthenticated) return '';
+
+        if ($this->user->role === 'employee') return view('components.sidebar-employee');
+        return view('components.sidebar-employer');
     }
 }

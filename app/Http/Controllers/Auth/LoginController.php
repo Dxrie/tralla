@@ -18,7 +18,7 @@ class LoginController extends Controller
         // Validate inputs
         $credentials = $request->validate([
             'email' => ['required', 'email', 'max:255'],
-            'password' => ['required', 'string', 'min:8']
+            'password' => ['required', 'string']
         ]);
 
         $remember = $request->boolean('remember');
