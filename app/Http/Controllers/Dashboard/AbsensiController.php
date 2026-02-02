@@ -81,7 +81,7 @@ class AbsensiController extends Controller
         if ($status === 'absent') {
             $message = 'Izin berhasil diajukan.';
         } else {
-            $html = view('components.absensi-masuk-row', compact('entry'))->render();
+            $html = view('users.absensi.partials.absensi-masuk-row', compact('entry'))->render();
 
             $message = $status === 'late'
                 ? 'Absensi berhasil, namun anda tercatat terlambat.'
@@ -90,6 +90,10 @@ class AbsensiController extends Controller
 
         return response()->json([
             'status' => 'success',
+            'data' => [
+                'title' => $status === 'late' ? 'Absensi Terlambat' : 'Absensi Berhasil',
+                'icon' => $status === 'late' ? 'warning' : 'success',
+            ],
             'message' => $message,
             'redirect' => $status === 'absent' ? route('izin.index') : null,
             'html' => $html ?? null,
@@ -102,14 +106,25 @@ class AbsensiController extends Controller
             'image_base64' => 'required',
         ]);
 
-        $todayEntry = ExitActivity::where('user_id', Auth::id())
+        $todayExit = ExitActivity::where('user_id', Auth::id())
             ->whereDate('created_at', Carbon::today())
             ->first();
 
-        if ($todayEntry) {
+        if ($todayExit) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Anda sudah melakukan absen pulang hari ini.',
+            ], 400);
+        }
+
+        $todayEntry = EntryActivity::where('user_id', Auth::id())
+            ->whereDate('created_at', Carbon::today())
+            ->first();
+
+        if (!$todayEntry) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Anda belum melakukan absen masuk hari ini.'
             ], 400);
         }
 
@@ -130,7 +145,7 @@ class AbsensiController extends Controller
         ]);
 
         $message = 'Absensi berhasil! Hati-hati di Jalan.';
-        $html = view('components.absensi-keluar-row', compact('entry'))->render();
+        $html = view('users.absensi.partials.absensi-keluar-row', compact('entry'))->render();
 
         return response()->json([
             'status' => 'success',

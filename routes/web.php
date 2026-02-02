@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\AbsensiController;
+use App\Http\Controllers\Dashboard\EmployeeManagementController;
 use App\Http\Controllers\Dashboard\IzinController;
 use App\Http\Controllers\Dashboard\LaporanController;
 use App\Http\Controllers\Dashboard\PeminjamanController;
@@ -46,6 +47,16 @@ Route::middleware('auth')->group(function () {
             Route::put('/profile/update', 'update')->name('profile.update');
             Route::put('/profile/change-password', 'changePassword')->name('profile.change-password');
             Route::put('/profile/avatar', 'updateAvatar')->name('profile.avatar');
+        });
+
+        Route::middleware('role:employer')->group(function () {
+            Route::controller(EmployeeManagementController::class)->group(function () {
+                Route::get('/karyawan', 'index')->name('karyawan.index');
+                Route::post('/karyawan', 'store')->name('karyawan.store');
+
+                Route::put('/karyawan/{id}', 'update')->name('karyawan.update');
+                Route::delete('/karyawan/{id}', 'destroy')->name('karyawan.destroy');
+            });
         });
     });
 

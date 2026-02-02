@@ -6,3 +6,6 @@ window.Swal = Swal;
 
 import './bootstrap';
 import 'bootstrap';
+import { Modal } from 'bootstrap'
+
+window.Modal = Modal;
