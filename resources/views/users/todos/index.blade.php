@@ -459,13 +459,10 @@ $(function() {
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             success: function (res) {
-                // Close loading Swal
                 Swal.close();
 
-                // Update checkbox state
                 $checkbox.prop('checked', res.is_done);
 
-                // Update text styling
                 if (res.is_done) {
                     $span.addClass('text-decoration-line-through text-muted');
                 } else {
