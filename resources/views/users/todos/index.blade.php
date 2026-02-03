@@ -60,7 +60,8 @@
             </form>
         </div>
         <div class="w-100 rounded-2 bg-white p-3">
-            <table class="table table-hover mb-0" style="font-size:0.925rem;">
+            <div class="table-responsive">
+                <table class="table table-hover mb-4" style="font-size:0.925rem;">
                 <thead>
                     <tr class="text-center">
                         <th style="width: 5%;">ID</th>
@@ -74,9 +75,16 @@
                 </thead>
 
                 <tbody id="todoTableBody">
-                    @include('users.todos.partials.table_rows')
+                    @forelse ($todos as $index => $todo)
+                        @include('users.todos.partials.table_row', ['todo' => $todo, 'index' => $index + 1])
+                    @empty
+                        <tr class="text-center">
+                            <td colspan="7">Belum ada data</td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </div>
@@ -163,10 +171,40 @@
 </div>
 
 <style>
+table {
+    width: 100%;
+    max-width: 100%;
+}
+
 .modal-dialog-scrollable .modal-body {
     max-height: calc(100vh - 200px);
     overflow-y: auto;
 }
+
+.no-visual-btn {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  outline: none;
+  box-shadow: none;
+}
+
+.description-cell {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+
+    word-break: break-word;
+    white-space: normal;
+    line-height: 1.4;
+}
+
 </style>
 
 @push('scripts')
@@ -346,16 +384,18 @@ $(function() {
     // DELETE TODO (AJAX)
     $('tbody').on('click', '.deleteTodoBtn', function () {
         const todoId = $(this).data('id');
+        const title = $(this).data('title');
         const $row = $(this).closest('tr');
 
         Swal.fire({
             title: 'Are you sure?',
-            text: "You won't be able to revert this!",
+            text: `Are you sure to delete "${title}"? You won't be able to revert this!`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, delete it!'
+            confirmButtonText: 'Yes, delete it!',
+            showLoaderOnConfirm: true
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
@@ -401,6 +441,17 @@ $(function() {
         const $checkbox = $(this);
         const $span = $checkbox.siblings('span');
 
+        // Show loading Swal
+        Swal.fire({
+            title: 'Updating...',
+            text: 'Please wait while we update the subtask.',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
         $.ajax({
             url: `/todo/subtask/${subtaskId}/toggle`,
             method: 'PATCH',
@@ -408,6 +459,19 @@ $(function() {
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             success: function (res) {
+                // Close loading Swal
+                Swal.close();
+
+                // Update checkbox state
+                $checkbox.prop('checked', res.is_done);
+
+                // Update text styling
+                if (res.is_done) {
+                    $span.addClass('text-decoration-line-through text-muted');
+                } else {
+                    $span.removeClass('text-decoration-line-through text-muted');
+                }
+
                 Swal.fire(
                     'Success',
                     'This subtask has now been marked done!',
@@ -415,6 +479,9 @@ $(function() {
                 );
             },
             error: function (xhr) {
+                // Close loading Swal
+                Swal.close();
+
                 // Revert checkbox on error
                 $checkbox.prop('checked', !$checkbox.prop('checked'));
                 Swal.fire(

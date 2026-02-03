@@ -76,8 +76,10 @@ class TodoController extends Controller
             }
         }
 
+        $index = 1;
+
         $todo->load('subtasks');
-        $html = view('users.todos.partials.table_row', compact('todo'))->render();
+        $html = view('users.todos.partials.table_row', compact('todo', 'index'))->render();
 
         return response()->json([
             'message' => 'Created successfully',
@@ -109,21 +111,32 @@ class TodoController extends Controller
 
         $todo->update($data);
 
-        // Handle subtasks: delete existing and create new ones
-        $todo->subtasks()->delete();
+        // Handle subtasks: update existing ones, add new ones
+        $existingSubtasks = $todo->subtasks;
         if (!empty($request->subtasks)) {
-            foreach ($request->subtasks as $name) {
-                if (trim($name) === '') continue;
+            foreach ($request->subtasks as $index => $name) {
+                $name = trim($name);
+                if ($name === '') continue;
 
-                $todo->subtasks()->create([
-                    'name' => $name,
-                    'is_done' => false,
-                ]);
+                if ($index < $existingSubtasks->count()) {
+                    // Update existing subtask
+                    $existingSubtasks[$index]->update(['name' => $name]);
+                } else {
+                    // Create new subtask
+                    $todo->subtasks()->create([
+                        'name' => $name,
+                        'is_done' => false,
+                    ]);
+                }
             }
         }
 
         $todo->load('subtasks');
-        $html = view('users.todos.partials.table_row', compact('todo'))->render();
+        $todos = Todo::with('subtasks')->orderBy('start_date', 'desc')->get();
+        $index = $todos->search(function ($t) use ($todo) {
+            return $t->id == $todo->id;
+        }) + 1;
+        $html = view('users.todos.partials.table_row', compact('todo', 'index'))->render();
 
         return response()->json([
             'message' => 'Todo have successfully been updated.',

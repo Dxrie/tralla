@@ -1,14 +1,20 @@
 <tr class="align-middle text-center" data-id="{{ $todo->id }}">
-    <td style="width: 5%;">{{ $todo->id }}</td>
-    <td style="width: 15%;" class="text-start">
-        {{ $todo->title }}
-        @if($todo->subtasks->count() > 0)
-            <button class="btn btn-sm btn-outline-secondary p-0" type="button" data-bs-toggle="collapse" data-bs-target="#subtasks-{{ $todo->id }}" aria-expanded="false" aria-controls="subtasks-{{ $todo->id }}">
-                <i class="bi bi-chevron-down"></i>
-            </button>
-        @endif
+    <td style="width: 5%;">{{ $index }}</td>
+    <td style="width: 15%; overflow: hidden;" class="text-start">
+        <div class="d-flex align-items-center gap-2">
+            <span class="text-truncate d-inline-block" style="max-width: calc(100% - 2rem);" title="{{ $todo->title }}">{{ $todo->title }}</span>
+            @if($todo->subtasks->count() > 0)
+                <button class="no-visual-btn flex-shrink-0" type="button" data-bs-toggle="collapse" data-bs-target="#subtasks-{{ $todo->id }}" aria-expanded="false" aria-controls="subtasks-{{ $todo->id }}">
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+            @endif
+        </div>
     </td>
-    <td style="width: 20%;" class="text-start">{{ $todo->description }}</td>
+    <td style="width: 20%;" class="text-start">
+        <div class="description-cell" title="{{ $todo->description }}">
+            {{ $todo->description }}
+        </div>
+    </td>
     <td style="width: 15%;">{{ $todo->status }}</td>
     <td style="width: 15%;">{{ $todo->start_date }}</td>
     <td style="width: 15%;">
@@ -37,6 +43,7 @@
         <button type="button"
                 class="btn btn-outline-danger btn-sm px-2 py-1 deleteTodoBtn"
                 data-id="{{ $todo->id }}"
+                data-title="{{ $todo->title }}"
                 title="Hapus">
             <i class="bi bi-trash"></i>
         </button>
@@ -44,16 +51,15 @@
 </tr>
 @if($todo->subtasks->count() > 0)
 <tr>
-    <td colspan="7" class="p-0">
+    <td colspan="7" class="p-0" style="border-top: none;">
         <div class="collapse" id="subtasks-{{ $todo->id }}">
-            <div class="p-3 bg-light">
+            <div class="p-3 bg-light" style="width: 100%; overflow: hidden">
                 <h6 class="mb-3">Subtasks:</h6>
-                <ul class="list-group">
                     @foreach($todo->subtasks as $subtask)
-                    <li class="list-group-item d-flex align-items-center">
-                        <input class="form-check-input me-2 subtask-checkbox" type="checkbox" data-subtask-id="{{ $subtask->id }}" {{ $subtask->is_done ? 'checked' : '' }}>
-                        <span class="{{ $subtask->is_done ? 'text-decoration-line-through text-muted' : '' }}">{{ $subtask->name }}</span>
-                    </li>
+                    <div class="d-flex align-items-center gap-2">
+                        <input class="form-check-input subtask-checkbox flex-shrink-0" type="checkbox" data-subtask-id="{{ $subtask->id }}" {{ $subtask->is_done ? 'checked' : '' }}>
+                        <span class="text-truncate text-wrap d-inline-block {{ $subtask->is_done ? 'text-decoration-line-through text-muted' : '' }}" title="{{ $subtask->name }}">{{ $subtask->name }}</span>
+                    </div>
                     @endforeach
                 </ul>
             </div>

@@ -54,7 +54,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/todo', 'store')->name('todo.store');
         Route::put('/todo/{todo}', 'update')->name('todo.update');
         Route::delete('/todo/{todo}', 'destroy')->name('todo.destroy');
-        Route::patch('/todo/subtask/{todo}/toggle', 'toggleSubtask')->name('todo.subtask.toggle');
+        Route::patch('/todo/subtask/{subtask}/toggle', 'toggleSubtask')->name('todo.subtask.toggle');
     });
 
     Route::controller(PeminjamanController::class)->group(function () {
