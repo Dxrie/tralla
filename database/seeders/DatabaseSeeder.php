@@ -17,12 +17,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(UserSeeder::class);
+        $this->call(EntryActivitySeeder::class);
+
         User::factory()->createMany([
             [
                 'name' => 'Colin Edric Mickynson',
                 'email' => 'colinedric04@gmail.com',
                 'password' => Hash::make('colinedric'),
+                'role' => 'employer',
             ],
+            /*
             [
                 'name' => 'Declane Joseph Delvino',
                 'email' => 'declanecun@gmail.com',
@@ -33,6 +38,7 @@ class DatabaseSeeder extends Seeder
                 'email' => 'josekeitaro2008@gmail.com',
                 'password' => Hash::make('jose321'),
             ]
+                */
         ]);
     }
 }

@@ -49,50 +49,96 @@
         </div>
 
         <div class="w-100 rounded-2 bg-white p-3">
-            <table class="table table-hover mb-0" style="font-size: 0.925rem">
-                <thead>
-                    <tr>
-                        <th style="width: 5%;">No</th>
-                        <th style="width: 20%;">Name</th>
-                        <th style="width: 25%;">Tanggal</th>
-                        <th style="width: 20%;">Waktu</th>
-                        <th style="width: 25%;">Bukti</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($todaysEntries as $entry)
+            <form method="GET" class="row g-2 align-items-end">
+                <div class="col-12 col-md-6">
+                    <label class="form-label mb-1">Search nama</label>
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                        placeholder="Cari nama karyawan...">
+                </div>
+
+                <div class="col-6 col-md-2">
+                    <label class="form-label mb-1">Dari</label>
+                    <input type="date" name="from" value="{{ request('from', now()->toDateString()) }}"
+                        class="form-control">
+                </div>
+
+                <div class="col-6 col-md-2">
+                    <label class="form-label mb-1">Sampai</label>
+                    <input type="date" name="to" value="{{ request('to', now()->toDateString()) }}"
+                        class="form-control">
+                </div>
+
+                <div class="col-6 col-md-2">
+                    <label class="form-label mb-1">Per halaman</label>
+                    <select name="per_page" class="form-select">
+                        @foreach ([10, 25, 50, 100] as $pp)
+                            <option value="{{ $pp }}" @selected((int) request('per_page', 10) === $pp)>{{ $pp }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i> Terapkan
+                    </button>
+                    <a href="{{ route('absensi.keluar') }}" class="btn btn-outline-secondary">
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="w-100 rounded-2 bg-white p-3">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" style="font-size: 0.925rem">
+                    <thead>
                         <tr>
-                            <td style="width: 5%;">{{ $loop->iteration }}</td>
-                            <td style="width: 20%;">{{ $entry->user->name }}</td>
-
-                            {{-- Display Date (e.g., 21 January 2026) --}}
-                            <td style="width: 25%;">{{ $entry->created_at->format('d F Y') }}</td>
-
-                            {{-- Display Time (e.g., 08:30:00) --}}
-                            <td style="width: 20%;">{{ $entry->created_at->format('H:i:s') }}</td>
-
-                            <td style="width: 25%;">
-                                @if ($entry->image_path)
-                                    {{-- Link to view the proof in a new tab --}}
-                                    <a href="{{ Storage::url($entry->image_path) }}" target="_blank"
-                                        class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye"></i> Lihat Bukti
-                                    </a>
-                                @else
-                                    <span class="text-muted small">Tidak ada foto</span>
-                                @endif
-                            </td>
+                            <th style="width: 5%;">No</th>
+                            <th style="width: 20%;">Name</th>
+                            <th style="width: 25%;">Tanggal</th>
+                            <th style="width: 20%;">Waktu</th>
+                            <th style="width: 25%;">Bukti</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
-                                <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
-                                Belum ada data absensi untuk hari ini.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @forelse ($todaysEntries as $entry)
+                            <tr>
+                                <td style="width: 5%;">{{ ($todaysEntries->firstItem() ?? 0) + $loop->index }}</td>
+                                <td style="width: 20%;">{{ $entry->user->name }}</td>
+
+                                {{-- Display Date (e.g., 21 January 2026) --}}
+                                <td style="width: 25%;">{{ $entry->created_at->format('d F Y') }}</td>
+
+                                {{-- Display Time (e.g., 08:30:00) --}}
+                                <td style="width: 20%;">{{ $entry->created_at->format('H:i:s') }}</td>
+
+                                <td style="width: 25%;">
+                                    @if ($entry->image_path)
+                                        {{-- Link to view the proof in a new tab --}}
+                                        <a href="{{ Storage::url($entry->image_path) }}" target="_blank"
+                                            class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> Lihat Bukti
+                                        </a>
+                                    @else
+                                        <span class="text-muted small">Tidak ada foto</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+                                    Belum ada data absensi untuk hari ini.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex justify-content-end mt-3">
+                {{ $todaysEntries->links() }}
+            </div>
         </div>
     </div>
 
