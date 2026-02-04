@@ -50,10 +50,30 @@
     </style>
 </head>
 
-<body class="">
+<body>
     @yield('content')
 
     @stack('scripts')
+    @if (session('success'))
+    <script type="module">
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: "{{ session('success') }}",
+            confirmButtonText: 'OK'
+        });
+    </script>
+    @endif
+    @if (session('error'))
+    <script type="module">
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: "{{ session('success') }}",
+            confirmButtonText: 'OK'
+        });
+    </script>
+    @endif
 </body>
 
 </html>

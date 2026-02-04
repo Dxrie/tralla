@@ -27,7 +27,7 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
 
-            return redirect()->route('dashboard');
+            return redirect()->route('dashboard')->with('success', 'You have successfully logged in.');
         }
 
         // If authentication fails

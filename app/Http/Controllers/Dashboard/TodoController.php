@@ -13,6 +13,10 @@ class TodoController extends Controller
     {
         $query = Todo::query();
 
+        if ($request->search) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
         if ($request->status) {
             $query->where('status', $request->status);
         }
@@ -25,7 +29,30 @@ class TodoController extends Controller
             $query->whereYear('start_date', $request->tahun);
         }
 
-        $todos = $query->with('subtasks')->orderBy('start_date', 'desc')->get();
+        $perPage = (int) $request->input('per_page', 10);
+        $perPage = max(1, min(100, $perPage));
+
+        $todos = $query->with('subtasks')->orderBy('start_date', 'desc')->paginate($perPage);
+
+        if ($request->ajax()) {
+            $html = '';
+            foreach ($todos as $index => $todo) {
+                $index = ($todos->currentPage() - 1) * $todos->perPage() + $index + 1;
+                $html .= view('users.todos.partials.table_row', compact('todo', 'index'))->render();
+            }
+            if ($todos->isEmpty()) {
+                $html = '<tr class="text-center"><td colspan="7">Belum ada data</td></tr>';
+            }
+            $pagination = '';
+            if ($todos->hasPages()) {
+                $pagination = $todos->appends($request->query())->links()->toHtml();
+            }
+
+            return response()->json([
+                'html' => $html,
+                'pagination' => $pagination,
+            ]);
+        }
 
         $statuses = ['to-do', 'on progress', 'hold', 'done'];
 
@@ -76,37 +103,27 @@ class TodoController extends Controller
             }
         }
 
-        $index = 1;
-
-        $todo->load('subtasks');
-        $html = view('users.todos.partials.table_row', compact('todo', 'index'))->render();
-
         return response()->json([
             'message' => 'Created successfully',
-            'html' => $html,
         ]);
     }
 
     public function update(Request $request, Todo $todo)
     {
-        $request->validate([
-            'title' => 'required',
+        $validated = $request->validate([
+            'title' => 'string|max:255',
             'status' => 'required',
-            'start_date' => 'required|date',
+            'start_date' => 'date',
             'finish_date' => 'nullable|date',
             'description' => 'nullable|string',
             'subtasks' => 'nullable|array',
             'subtasks.*' => 'nullable|string|max:255'
         ]);
 
-        $data = $request->all();
+        $data = $validated;
 
-        if ($request->status === 'done' && $todo->finish_date === null) {
+        if ($request->status === 'done' && !$request->filled('finish_date') && $todo->finish_date === null) {
             $data['finish_date'] = now();
-        }
-
-        if ($request->status !== 'done') {
-            $data['finish_date'] = null;
         }
 
         $todo->update($data);
@@ -131,16 +148,8 @@ class TodoController extends Controller
             }
         }
 
-        $todo->load('subtasks');
-        $todos = Todo::with('subtasks')->orderBy('start_date', 'desc')->get();
-        $index = $todos->search(function ($t) use ($todo) {
-            return $t->id == $todo->id;
-        }) + 1;
-        $html = view('users.todos.partials.table_row', compact('todo', 'index'))->render();
-
         return response()->json([
             'message' => 'Todo have successfully been updated.',
-            'html' => $html,
             'id' => $todo->id,
         ]);
     }

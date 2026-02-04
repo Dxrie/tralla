@@ -24,7 +24,7 @@
         </div>
     @endif
 
-    <div class="container-fluid py-4">
+    <div class="py-4">
         <div class="row mb-4">
             <div class="col-12 d-flex justify-content-between align-items-center">
                 <h2 class="h4 text-gray-800 mb-0">Manajemen Divisi</h2>
