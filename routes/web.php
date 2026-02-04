@@ -52,6 +52,9 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::middleware('role:employer')->group(function () {
+            Route::patch('/izin/{absent}/approve', [IzinController::class, 'approve'])->name('izin.approve');
+            Route::patch('/izin/{absent}/reject', [IzinController::class, 'reject'])->name('izin.reject');
+
             Route::controller(EmployeeManagementController::class)->group(function () {
                 Route::get('/karyawan', 'index')->name('karyawan.index');
                 Route::post('/karyawan', 'store')->name('karyawan.store');

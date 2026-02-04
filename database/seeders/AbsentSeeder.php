@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\EntryActivity;
+use App\Models\Absent;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class EntryActivitySeeder extends Seeder
+class AbsentSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,9 +18,10 @@ class EntryActivitySeeder extends Seeder
             return;
         }
 
-        foreach ($users->take(15) as $userId) {
-            EntryActivity::factory()
-                ->count(rand(1, 5))
+        $userIds = $users->random(min(8, $users->count()));
+        foreach ($userIds as $userId) {
+            Absent::factory()
+                ->count(rand(1, 3))
                 ->create(['user_id' => $userId]);
         }
     }
