@@ -43,7 +43,7 @@
                         </div>
 
                         {{-- Role Filter --}}
-                        <div class="col-md-4 col-lg-3">
+                        <div class="col-md-3 col-lg-2">
                             <select name="role" class="form-select">
                                 <option value="">Semua Role</option>
                                 <option value="employee" {{ request('role') == 'employee' ? 'selected' : '' }}>Employee
@@ -53,12 +53,25 @@
                             </select>
                         </div>
 
+                        {{-- Division Filter --}}
+                        <div class="col-md-3 col-lg-2">
+                            <select name="division_id" class="form-select">
+                                <option value="">Semua Divisi</option>
+                                @foreach ($divisions as $division)
+                                    <option value="{{ $division->id }}"
+                                        {{ request('division_id') == $division->id ? 'selected' : '' }}>
+                                        {{ $division->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         {{-- Actions --}}
-                        <div class="col-md-2 col-lg-4 d-flex gap-2">
+                        <div class="col-md-2 col-lg-3 d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
                                 Filter
                             </button>
-                            @if (request()->has('search') || request()->has('role'))
+                            @if (request()->has('search') || request()->has('role') || request()->has('division_id'))
                                 <a href="{{ route('karyawan.index') }}" class="btn btn-outline-secondary">
                                     Reset
                                 </a>

@@ -11,6 +11,7 @@ use App\Http\Controllers\Dashboard\IzinController;
 use App\Http\Controllers\Dashboard\LaporanController;
 use App\Http\Controllers\Dashboard\PeminjamanController;
 use App\Http\Controllers\Dashboard\TodoController;
+use App\Http\Controllers\Dashboard\LogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -62,8 +63,11 @@ Route::middleware('auth')->group(function () {
             Route::controller(DivisionController::class)->group(function () {
                 Route::get('/divisi', 'index')->name('divisi.index');
                 Route::post('/divisi', 'store')->name('divisi.store');
+                Route::put('/divisi/{division}', 'update')->name('divisi.update');
                 Route::delete('/divisi/{division}', 'destroy')->name('divisi.destroy');
             });
+
+            Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
         });
     });
 

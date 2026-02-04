@@ -30,6 +30,21 @@ class DivisionController extends Controller
             ->with('success', 'Divisi berhasil ditambahkan.');
     }
 
+    public function update(Request $request, Division $division)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:divisions,name,' . $division->id],
+        ]);
+
+        $division->update([
+            'name' => $validated['name'],
+        ]);
+
+        return redirect()
+            ->route('divisi.index')
+            ->with('success', 'Divisi berhasil diperbarui.');
+    }
+
     public function destroy(Division $division)
     {
         $division->delete();
