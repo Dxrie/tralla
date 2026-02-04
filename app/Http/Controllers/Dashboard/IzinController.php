@@ -41,4 +41,22 @@ class IzinController extends Controller
         $absents = $query->latest()->paginate($perPage)->withQueryString();
         return view('users.izin.index', compact('absents'));
     }
+
+    public function approve(Absent $absent)
+    {
+        $absent->update(['status' => 'approved']);
+        $message = 'Izin berhasil disetujui.';
+        return request()->expectsJson()
+            ? response()->json(['status' => 'approved', 'message' => $message])
+            : back()->with('success', $message);
+    }
+
+    public function reject(Absent $absent)
+    {
+        $absent->update(['status' => 'rejected']);
+        $message = 'Izin ditolak.';
+        return request()->expectsJson()
+            ? response()->json(['status' => 'rejected', 'message' => $message])
+            : back()->with('success', $message);
+    }
 }
