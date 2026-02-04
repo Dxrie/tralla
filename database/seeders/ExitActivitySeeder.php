@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\EntryActivity;
+use App\Models\ExitActivity;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
-class EntryActivitySeeder extends Seeder
+class ExitActivitySeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,9 +18,9 @@ class EntryActivitySeeder extends Seeder
             return;
         }
 
-        foreach ($users->take(15) as $userId) {
-            EntryActivity::factory()
-                ->count(rand(1, 5))
+        foreach ($users->take(12) as $userId) {
+            ExitActivity::factory()
+                ->count(rand(1, 4))
                 ->create(['user_id' => $userId]);
         }
     }
