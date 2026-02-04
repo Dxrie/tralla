@@ -28,7 +28,9 @@
                                     <button type="button" id="prevStatusBtn" class="btn btn-outline-primary btn-sm rounded-pill">
                                         <i class="bi bi-chevron-left"></i>
                                     </button>
-                                    <span id="currentStatus" class="text-center flex-grow-1 status-transition" style="min-width: 120px;"></span>
+                                    <span id="currentStatus" class="text-center flex-grow-1 status-transition" style="min-width: 120px;">
+                                        <span id="statusBadge" class="badge rounded-pill"></span>
+                                    </span>
                                     <button type="button" id="nextStatusBtn" class="btn btn-outline-primary btn-sm rounded-pill">
                                         <i class="bi bi-chevron-right"></i>
                                     </button>

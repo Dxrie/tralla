@@ -54,7 +54,7 @@ class TodoController extends Controller
             ]);
         }
 
-        $statuses = ['to-do', 'on progress', 'hold', 'done'];
+        $statuses = ['On Progress', 'Hold', 'Done'];
 
         $months = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret',

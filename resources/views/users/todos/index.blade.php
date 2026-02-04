@@ -33,7 +33,7 @@
                     <option value="">Semua</option>
                     @foreach ($statuses as $status)
                         <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
-                            {{ ucfirst($status) }}
+                            {{ $status }}
                         </option>
                     @endforeach
                 </select>
@@ -342,11 +342,11 @@ $(function() {
         $('#formMethod').val('PUT');
         $('#todoId').val(data.id);
 
-        $('input[name="title"]').val(data.title);
-        $('input[name="description"]').val(data.description);
-        $('select[name="status"]').val(data.status);
-        $('input[name="start_date"]').val(data.start_date);
-        $('input[name="finish_date"]').val(data.finish_date);
+        $('#todoForm input[name="title"]').val(data.title);
+        $('#todoForm input[name="description"]').val(data.description);
+        $('#todoForm select[name="status"]').val(data.status);
+        $('#todoForm input[name="start_date"]').val(data.start_date);
+        $('#todoForm input[name="finish_date"]').val(data.finish_date);
 
         const $wrapper = $('#subtasksWrapper');
         $wrapper.empty();
@@ -435,20 +435,21 @@ $(function() {
         $('#viewFinishDate').text(data.finish_date);
 
         // Status cycling
-        const statuses = ['to-do', 'on progress', 'hold'];
+        const statuses = ['On Progress', 'Hold', 'Done'];
         let currentStatusIndex = statuses.indexOf(data.status);
-        $('#currentStatus').text(ucfirst(data.status));
+        let originalStatus = data.status;
+        $('#currentStatus').text(data.status);
         $('#statusValue').val(data.status);
         $('#todoIdForStatus').val(data.id);
 
         $('#prevStatusBtn').off('click').on('click', function () {
             currentStatusIndex = (currentStatusIndex - 1 + statuses.length) % statuses.length;
-            updateStatus(statuses[currentStatusIndex], data.id);
+            updateStatus(statuses[currentStatusIndex], data.id, originalStatus);
         });
 
         $('#nextStatusBtn').off('click').on('click', function () {
             currentStatusIndex = (currentStatusIndex + 1) % statuses.length;
-            updateStatus(statuses[currentStatusIndex], data.id);
+            updateStatus(statuses[currentStatusIndex], data.id, originalStatus);
         });
 
         // Subtasks
@@ -525,13 +526,26 @@ $(function() {
         });
     });
 
-    function updateStatus(newStatus, todoId) {
+    function updateStatus(newStatus, todoId, originalStatus) {
         const $statusSpan = $('#currentStatus');
         $statusSpan.addClass('fade-out');
 
         setTimeout(() => {
-            $statusSpan.text(ucfirst(newStatus)).removeClass('fade-out').addClass('fade-in');
+            $statusSpan.text(newStatus).removeClass('fade-out').addClass('fade-in');
             $('#statusValue').val(newStatus);
+
+            // Update status badge
+            updateStatusBadge(newStatus);
+
+            Swal.fire({
+                title: 'Updating...',
+                text: 'Please wait while we update the status.',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
             $.ajax({
                 url: todoRoutes.update.replace(':id', todoId),
@@ -542,6 +556,8 @@ $(function() {
                     _token: $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function (res) {
+                    Swal.close();
+
                     Swal.fire(
                         'Success',
                         'Status updated successfully!',
@@ -552,9 +568,16 @@ $(function() {
                     $('.filter-form').trigger('submit');
                 },
                 error: function (xhr) {
+                    Swal.close();
+
+                    // Revert to original status on error
+                    $statusSpan.text(originalStatus);
+                    $('#statusValue').val(originalStatus);
+                    updateStatusBadge(originalStatus);
+
                     Swal.fire(
                         'Error!',
-                        'Something went wrong.',
+                        'Something went wrong. Status reverted to original.',
                         'error'
                     );
                 }
@@ -562,8 +585,17 @@ $(function() {
         }, 150);
     }
 
-    function ucfirst(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
+    function updateStatusBadge(status) {
+        const $badge = $('#statusBadge');
+        $badge.removeClass('bg-warning bg-danger bg-success').text(status);
+
+        if (status === 'On Progress') {
+            $badge.addClass('bg-warning');
+        } else if (status === 'Hold') {
+            $badge.addClass('bg-danger');
+        } else if (status === 'Done') {
+            $badge.addClass('bg-success');
+        }
     }
 })
 </script>

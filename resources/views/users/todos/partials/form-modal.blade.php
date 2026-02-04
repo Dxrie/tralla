@@ -43,9 +43,9 @@
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Status</label>
                         <select name="status" class="form-select form-select-sm">
-                            <option value="to-do" {{ old('status') == 'to-do' ? 'selected' : '' }}>To-Do</option>
-                            <option value="on progress" {{ old('status') == 'on progress' ? 'selected' : '' }}>On Progress</option>
-                            <option value="hold" {{ old('status') == 'hold' ? 'selected' : '' }}>Hold</option>
+                            <option value="On Progress" {{ old('status') == 'On Progress' ? 'selected' : '' }}>On Progress</option>
+                            <option value="Hold" {{ old('status') == 'Hold' ? 'selected' : '' }}>Hold</option>
+                            <option value="Done" {{ old('status') == 'Done' ? 'selected' : '' }}>Done</option>
                         </select>
                     </div>
 

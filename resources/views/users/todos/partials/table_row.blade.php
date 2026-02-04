@@ -10,7 +10,17 @@
             {{ $todo->description ?: '-' }}
         </div>
     </td>
-    <td style="width: 15%;">{{ $todo->status }}</td>
+    <td style="width: 15%;">
+        @if($todo->status == 'On Progress')
+            <span class="badge bg-warning rounded-pill">{{ $todo->status }}</span>
+        @elseif($todo->status == 'Hold')
+            <span class="badge bg-danger rounded-pill">{{ $todo->status }}</span>
+        @elseif($todo->status == 'Done')
+            <span class="badge bg-success rounded-pill">{{ $todo->status }}</span>
+        @else
+            {{ $todo->status }}
+        @endif
+    </td>
     <td style="width: 15%;">{{ $todo->start_date }}</td>
     <td style="width: 15%;">
         @if ($todo->finish_date)
