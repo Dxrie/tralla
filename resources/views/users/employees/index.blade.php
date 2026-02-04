@@ -14,7 +14,7 @@
         }
     </style>
 
-    <div class="container-fluid py-4">
+    <div class="py-4">
 
         {{-- Header & Add Button --}}
         <div class="row mb-4">

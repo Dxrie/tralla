@@ -3,7 +3,7 @@
 @section('title', 'Divisi • Tralla')
 
 @section('content')
-    <div class="container-fluid py-4">
+    <div class="py-4">
         {{-- Header --}}
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="h4 text-gray-800 mb-0">Manajemen Divisi</h2>

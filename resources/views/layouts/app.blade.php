@@ -16,7 +16,6 @@
         }
     </style>
 </head>
-
 <body class="d-flex flex-column min-vh-100">
     <x-navbar />
 
@@ -26,11 +25,33 @@
         <!-- Main Content Area -->
         <div class="flex-grow-1 p-4 bg-secondary bg-opacity-25"
             style="overflow-y: auto; overflow-x: hidden; min-width: 0;">
-            @yield('content')
+            <div class="container-fluid">
+                @yield('content')
+            </div>
         </div>
     </main>
 
     @stack('scripts')
+    @if (session('success'))
+    <script type="module">
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: "{{ session('success') }}",
+            confirmButtonText: 'OK'
+        });
+    </script>
+    @endif
+    @if (session('error'))
+    <script type="module">
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: "{{ session('success') }}",
+            confirmButtonText: 'OK'
+        });
+    </script>
+    @endif
 </body>
 
 </html>

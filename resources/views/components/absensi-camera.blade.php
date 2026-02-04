@@ -92,6 +92,7 @@
                         $btn.prop('disabled', true);
                         $btn.find('#submitSpinner').removeClass('d-none');
                     },
+                    
                     success: async function(res) {
                         if (res.status === 'success') {
                             $('#attendanceModal [data-bs-dismiss="modal"]').trigger('click');
