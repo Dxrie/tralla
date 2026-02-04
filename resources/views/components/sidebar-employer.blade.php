@@ -34,6 +34,15 @@
                 </a>
             </li>
 
+            <!-- Logs -->
+            <li class="nav-item">
+                <a href="{{ route('logs.index') }}"
+                    class="nav-link {{ request()->routeIs('logs.index') ? 'active' : 'link-dark' }} d-flex align-items-center">
+                    <i class="bi bi-journal-text me-3"></i>
+                    <span>Log Aktivitas</span>
+                </a>
+            </li>
+
             <!-- Divisi -->
             <li class="nav-item">
                 <a href="{{ route('divisi.index') }}"

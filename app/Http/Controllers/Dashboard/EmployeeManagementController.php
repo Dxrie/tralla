@@ -7,6 +7,7 @@ use App\Models\Division;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class EmployeeManagementController extends Controller
 {
@@ -24,6 +25,10 @@ class EmployeeManagementController extends Controller
 
         if ($request->filled('role') && in_array($request->role, ['employee', 'employer'])) {
             $query->where('role', $request->role);
+        }
+
+        if ($request->filled('division_id')) {
+            $query->where('division_id', $request->division_id);
         }
 
         $employees = $query->latest()->paginate(10)->withQueryString();
@@ -55,6 +60,8 @@ class EmployeeManagementController extends Controller
             $user->division_id = $data['division_id'] ?? null;
 
             $user->save();
+
+            Log::info("User created by admin " . Auth::user()->name . ": " . $user->email);
 
             $newRowsHtml .= view('users.employees.partials.row', ['employee' => $user])->render();
         }
