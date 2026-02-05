@@ -10,8 +10,8 @@
             {{ $loan->description ?: '-' }}
         </div>
     </td>
-    <td style="width: 15%;">{{ \Carbon\Carbon::parse($loan->date)->format('d-m-Y') }}</td>
     <td style="width: 15%;">{{ $loan->division->name }}</td>
+    <td style="width: 15%;">{{ \Carbon\Carbon::parse($loan->date)->format('d-m-Y') }}</td>
     <td class="text-nowrap" style="width: 15%;">
         {{-- Button View --}}
         <button
@@ -21,6 +21,7 @@
             data-description="{{ $loan->description }}"
             data-date="{{ $loan->date }}"
             data-division="{{ $loan->division->name }}"
+            data-items='@json($loan->loanItems->pluck("name")->toArray())'
             data-bs-toggle="modal"
             data-bs-target="#viewModal"
         >

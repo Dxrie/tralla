@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class LoanController extends Controller
 {
@@ -73,7 +74,8 @@ class LoanController extends Controller
         }
 
         $divisions = Division::all();
-        return view('users.loans.index', compact('loans', 'divisions', 'months', 'years'));
+        $userDivision = Auth::user()->division;
+        return view('users.loans.index', compact('loans', 'divisions', 'months', 'years', 'userDivision'));
     }
      
     public function store(Request $request)

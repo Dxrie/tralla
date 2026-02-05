@@ -21,10 +21,10 @@
                         <input type="text" name="description" class="form-control form-control-sm" id="create_keterangan">
                     </div>
                     <div class="mb-3">
-                        <label for="create_nama_barang" class="form-label fw-semibold">Nama Barang</label>
+                        <label for="create_nama_barang" class="form-label fw-semibold">Item Name</label>
                         <div id="itemsWrapper"></div>
                         <button type="button" id="addItemBtn" class="btn btn-outline-primary btn-sm" style="border-style: dashed; width: 100%;;">
-                            <i class="bi bi-plus-lg"></i>Tambah Barang
+                            <i class="bi bi-plus-lg"></i>Add Item
                         </button>
                     </div>
                     <div class="mb-3">
@@ -32,11 +32,17 @@
                         <input type="date" name="date" class="form-control form-control-sm" id="create_tanggal_pinjam" required>
                     </div>
                     <div class="mb-3">
-                        <label for="create-divisi" class="form-label fw-semibold">Divisi</label>
+                        <label for="create-divisi" class="form-label fw-semibold">Division</label>
                         <select name="division_id" id="create_divisi" class="form-select form-select-sm" required>
-                            <option value="">Pilih Divisi</option>
+                            @if($userDivision)
+                                <option value="{{ $userDivision->id }}" selected>{{ $userDivision->name }}</option>
+                            @else
+                                <option value="" disabled selected>Pilih Divisi</option>
+                            @endif
                             @foreach($divisions as $division)
-                                <option value="{{ $division->id }}" {{ old('division_id') == $division->id ? 'selected' : '' }}>{{ $division->name }}</option>
+                                @if(!$userDivision || $userDivision->id != $division->id)
+                                    <option value="{{ $division->id }}" {{ old('division_id') == $division->id ? 'selected' : '' }}>{{ $division->name }}</option>
+                                @endif
                             @endforeach
                         </select>
                     </div>

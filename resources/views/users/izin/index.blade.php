@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Data Izin - Tralla')
+@section('title', 'Data Izin • Tralla')
 
 @section('content')
     @if (session('success'))
@@ -63,14 +63,14 @@
     {{-- Table --}}
     <div class="w-100 rounded-2 bg-white p-3">
         <div class="table-responsive">
-            <table class="table table-hover scrollable-tbody mb-0">
+            <table class="table table-hover scrollable-tbody mb-0" style="font-size: 0.925rem">
                 <thead>
                     <tr class="text-center">
                         <th style="width: 5%;">No</th>
-                        <th style="width: 20%;">Nama Karyawan</th>
+                        <th class="text-start" style="width: 20%;">Nama Karyawan</th>
                         <th style="width: 15%;">Tanggal</th>
                         <th style="width: 10%;">Waktu</th>
-                        <th style="width: 25%;">Keterangan</th>
+                        <th class="text-start" style="width: 25%;">Keterangan</th>
                         <th style="width: 15%;">Status</th>
                         @if (auth()->user()?->role === 'employer')
                             <th class="text-end" style="width: 10%;">Aksi</th>
@@ -79,17 +79,19 @@
                 </thead>
                 <tbody>
                     @forelse($absents as $activity)
-                        <tr id="izin-row-{{ $activity->id }}" data-absent-id="{{ $activity->id }}"
+                        <tr class="text-center" id="izin-row-{{ $activity->id }}" data-absent-id="{{ $activity->id }}"
                             data-approve-url="{{ route('izin.approve', $activity) }}"
                             data-reject-url="{{ route('izin.reject', $activity) }}">
                             <td>{{ ($absents->firstItem() ?? 0) + $loop->index }}</td>
-                            <td>{{ $activity->user->name }}</td>
+                            <td class="text-start">{{ $activity->user->name }}</td>
 
                             <td>{{ $activity->created_at->format('d F Y') }}</td>
                             <td>{{ $activity->created_at->format('H:i') }}</td>
 
-                            <td class="text-muted">
-                                {{ $activity->detail ?? '-' }}
+                            <td class="text-muted text-start">
+                                <div class="truncate-cell" title="{{ $activity->detail ?: '-' }}">
+                                    {{ $activity->detail ?: '-' }}
+                                </div>
                             </td>
 
                             <td class="izin-status-cell">
@@ -140,11 +142,23 @@
                 </tbody>
             </table>
         </div>
-        <div class="d-flex justify-content-end mt-3">
+        <div class="d-flex justify-content-center mt-3">
             {{ $absents->appends(request()->query())->links() }}
         </div>
     </div>
 
+<style>
+.truncate-cell {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    word-break: break-word;
+}
+</style>
 @endsection
 
 @push('scripts')

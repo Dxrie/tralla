@@ -455,14 +455,17 @@ $(function() {
         if (data.subtasks && data.subtasks.length > 0) {
             data.subtasks.forEach(subtask => {
                 $subtasksContainer.append(`
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <input class="form-check-input view-subtask-checkbox" type="checkbox" data-subtask-id="${subtask.id}" ${subtask.is_done ? 'checked' : ''}>
-                        <span class="${subtask.is_done ? 'text-decoration-line-through text-muted' : ''}">${subtask.name}</span>
+                    <div class="d-flex align-items-center gap-3 mb-2 p-2 rounded-2 border">
+                        <input class="form-check-input view-subtask-checkbox mt-0" type="checkbox" data-subtask-id="${subtask.id}" ${subtask.is_done ? 'checked' : ''}>
+                        <span class="fw-medium ${subtask.is_done ? 'text-decoration-line-through text-muted' : ''}">${subtask.name}</span>
                     </div>
                 `);
             });
         } else {
-            $subtasksContainer.append('<p class="text-muted">No subtasks</p>');
+            $subtasksContainer.append(`<div class="text-center py-4">
+                    <i class="bi bi-inbox-fill text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-2">No items found</p>
+                </div>`);
         }
     });
 

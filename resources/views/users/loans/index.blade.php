@@ -86,11 +86,11 @@
                 <thead>
                     <tr class="text-center">
                         <th style="width: 5%;">No</th>
-                        <th style="width: 20%;" class="text-start">Nama Peminjam</th>
-                        <th style="width: 20%;" class="text-start">Keterangan</th>
-                        <th style="width: 15%;">Tanggal Pinjam</th>
-                        <th style="width: 15%;">Divisi</th>
-                        <th style="width: 15%;">Aksi</th>
+                        <th style="width: 20%;" class="text-start">Title</th>
+                        <th style="width: 20%;" class="text-start">Description</th>
+                        <th style="width: 15%;">Division</th>
+                        <th style="width: 15%;">Date of Loan</th>
+                        <th style="width: 15%;">Action</th>
                     </tr>
                 </thead>
                 <tbody id="loanTableBody">
@@ -98,8 +98,8 @@
                         @include('users.loans.partials.table-row', ['loan' => $loan, 'index' => $index + 1])
                     @empty
                         <tr class="text-center">
-                                <td colspan="6">Belum ada data</td>
-                            </tr>
+                            <td colspan="6">Belum ada data</td>
+                        </tr>
                     @endforelse
                 </tbody>
             </table>
@@ -183,6 +183,14 @@ $(function () {
         $form[0].reset();
         $wrapper.empty();
 
+        // Add one initial item input
+        $wrapper.append(`
+            <div class="d-flex flex-row mb-2 item-row gap-2">
+                <input type="text" name="items[]" id="create_item" class="form-control form-control-sm" required>
+                <button type="button" class="btn btn-outline-danger btn-sm remove-item"><i class="bi bi-trash"></i></button>
+            </div>
+        `);
+
         $form.attr('action', '{{ route("loan.store") }}');
         $('#formMethod').val('POST');
         $('#loanId').val('');
@@ -229,11 +237,19 @@ $(function () {
                 $buttons.prop('disabled', false);
                 $spinner.addClass('d-none');
 
-                Swal.fire(
-                    'Error!',
-                    'Something went wrong.',
-                    'error'
-                );
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: xhr.responseJSON.message,
+                    });
+                } else {
+                    Swal.fire(
+                        'Error!',
+                        'Something went wrong.',
+                        'error'
+                    );
+                }
 
                 if (xhr.status === 422) {
                     const errors = xhr.responseJSON.errors;
@@ -323,20 +339,28 @@ $(function () {
 
         $('#loanForm input[name="title"]').val(data.title);
         $('#loanForm input[name="description"]').val(data.description);
-        $('#loanForm select[name="division"]').val(data.division);
+        $('#loanForm select[name="division_id"]').val(data.division_id);
         $('#loanForm input[name="date"]').val(data.date);
 
         $wrapper.empty();
 
-        if (data.items) {
+        if (data.items && data.items.length > 0) {
             data.items.forEach(name => {
                 $wrapper.append(`
                     <div class="item-row d-flex flex-row mb-2 gap-2">
-                        <input type="text" name="items[]" class="form-control form-control-sm" value="${name}">
+                        <input type="text" name="items[]" class="form-control form-control-sm" value="${name}" required>
                         <button type="button" class="btn btn-outline-danger btn-sm remove-item"><i class="bi bi-trash"></i></button>
                     </div>
                 `);
             });
+        } else {
+            // Add one initial item if no items exist
+            $wrapper.append(`
+                <div class="d-flex flex-row mb-2 item-row gap-2">
+                    <input type="text" name="items[]" id="create_item" class="form-control form-control-sm" required>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-item"><i class="bi bi-trash"></i></button>
+                </div>
+            `);
         }
 
         $('#formModalTitle').text('Edit To-Do');
@@ -414,15 +438,21 @@ $(function () {
         const $itemsContainer = $('#viewItems');
         $itemsContainer.empty();
         if (data.items && data.items.length > 0) {
-            data.items.forEach(item => {
+            data.items.forEach((name, index) => {
                 $itemsContainer.append(`
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <span>${item}</span>
+                    <div class="d-flex align-items-center gap-3 mb-2 p-2 rounded-2 border">
+                        <span class="badge bg-primary rounded-pill">${index + 1}</span>
+                        <span class="fw-medium">${name}</span>
                     </div>
                 `);
             });
         } else {
-            $itemsContainer.append('<p class="text-muted">No items</p>');
+            $itemsContainer.append(`
+                <div class="text-center py-4">
+                    <i class="bi bi-inbox-fill text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-2">No items found</p>
+                </div>
+            `);
         }
     });
 });
