@@ -3,95 +3,148 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Models\Loan;
+use App\Models\Division;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 
 class LoanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Adding with('loanItems') ensures the "View" button has data to show
-        $loans = Loan::with('loanItems')->latest()->get();
-        return view('users.peminjaman.index', compact('loans'));
-    }
-    
-    public function store(Request $request)
-    {
-        $request->validate([
-            'nama_peminjam' => 'required|string|max:255',
-            'keterangan' => 'nullable|string',
-            'tanggal_pinjam' => 'required|date',
-            'divisi' => 'required|in:karyawan,magang,admin',
-            'nama_barang' => 'required|array',
-            'nama_barang.*' => 'required|string',
-        ]);
+        $query = Loan::query();
 
-        $loan = Loan::create([
-            'nama_peminjam' => $request->nama_peminjam,
-            'keterangan' => $request->keterangan,
-            'tanggal_pinjam' => $request->tanggal_pinjam,
-            'divisi' => $request->divisi,
-        ]);
+        if ($request->search) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
 
-        foreach ($request->nama_barang as $item_name) {
-            if (!empty($item_name)) {
-                $loan->loanItems()->create([
-                    'nama_barang' => $item_name,
-                ]);
+        if ($request->division) {
+            $division = Division::where('name', $request->division)->first();
+            if ($division) {
+                $query->where('division_id', $division->id);
             }
         }
 
-        return redirect()->route('peminjaman.index')->with('success', 'Peminjaman berhasil dibuat');
+        if ($request->bulan) {
+            $query->whereMonth('date', $request->bulan);
+        }
+
+        if ($request->tahun) {
+            $query->whereYear('date', $request->tahun);
+        }
+
+        $perPage = (int) $request->input('per_page', 10);
+        $perPage = max(1, min(100, $perPage));
+
+        $loans = $query->with('loanItems')->orderBy('date', 'desc')->paginate($perPage);
+
+        if ($request->ajax()) {
+            $html = '';
+            foreach ($loans as $index => $loan) {
+                $index = ($loans->currentPage() - 1) * $loans->perPage() + $index + 1;
+                $html .= view('users.loans.partials.table-row', ['loan' => $loan, 'index' => $index])->render();
+            }
+            if ($loans->isEmpty()) {
+                $html = '<tr class="text-center"><td colspan="6">Belum ada data</td></tr>';
+            }
+            $pagination = '';
+            if ($loans->hasPages()) {
+                $pagination = $loans->appends($request->query())->links()->toHtml();
+            }
+
+            return response()->json([
+                'html' => $html,
+                'pagination' => $pagination,
+            ]);
+        }
+
+        $months = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret',
+            4 => 'April', 5 => 'Mei', 6 => 'Juni',
+            7 => 'Juli', 8 => 'Agustus', 9 => 'September',
+            10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        $years = [];
+        $currentYear = now()->year;
+        for ($i = $currentYear - 3; $i <= $currentYear + 1; $i++) {
+            $years[] = $i;
+        }
+
+        $divisions = Division::all();
+        return view('users.loans.index', compact('loans', 'divisions', 'months', 'years'));
+    }
+     
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title'         => 'required|string|max:255',
+            'description'   => 'nullable|string',
+            'date'          => 'required|date',
+            'division_id'   => ['required', Rule::exists('divisions', 'id')],
+            'items'         => 'required|array',
+            'items.*'  => 'required|string',
+        ]);
+
+        $loan = Loan::create([
+            'title'       => $validated['title'],
+            'description' => $validated['description'],
+            'date'        => $validated['date'],
+            'division_id' => $validated['division_id'],
+        ]);
+
+        if (!empty($validated['items'])) {
+            foreach ($validated['items'] as $name) {
+                if (trim($name) === '') continue;
+
+                $loan->loanItems()->create([
+                    'name' => $name,
+                ]);
+            }
+        }
     }
 
     public function update(Request $request, Loan $loan)
     {
-        $request->validate([
-            'nama_peminjam' => 'required|string',
-            'keterangan' => 'nullable|string',
-            'tanggal_pinjam' => 'required|date',
-            'divisi' => 'required|in:karyawan,magang,admin',
-            'nama_barang' => 'required|array|min:1',
-            'nama_barang.*' => 'required|string',
+        $validated = $request->validate([
+            'title'         => 'required|string|max:255',
+            'description'   => 'nullable|string',
+            'date'          => 'required|date',
+            'division_id'   => ['required', Rule::exists('divisions', 'id')],
+            'items'         => 'required|array',
+            'items.*'       => 'required|string',
         ]);
 
-        // Use a transaction to ensure data integrity
-        DB::transaction(function () use ($request, $loan) {
-            // 1. Update the main Loan record
-            $loan->update([
-                'nama_peminjam' => $request->nama_peminjam,
-                'keterangan' => $request->keterangan,
-                'tanggal_pinjam' => $request->tanggal_pinjam,
-                'divisi' => $request->divisi,
-            ]);
+        $division = Division::where('id', $validated['division_id'])->first();
 
-            // 2. Delete all existing items for this loan
-            $loan->loanItems()->delete();
+        $loan->update($validated);
 
-            // 3. Re-insert the items from the request
-            foreach ($request->nama_barang as $item) {
-                if (!empty($item)) {
-                    $loan->loanItems()->create([
-                        'nama_barang' => $item
-                    ]);
+        $existingItems = $loan->loanItems;
+        if (!empty($request->items)) {
+            foreach ($request->items as $index => $name) {
+                $name = trim($name);
+                if ($name === '') continue;
+
+                if ($index < $existingItems->count()) {
+                    // Update existing item
+                    $existingItems[$index]->update(['name' => $name]);
+                } else {
+                    // Create new item
+                    $loan->loanItems()->create(['name' => $name]);
                 }
             }
-        });
+        }
 
-        return redirect()->route('peminjaman.index')->with('success', 'Peminjaman berhasil diperbarui');
+        return response()->json([
+            'message' => 'Loan has been successfully updated.',
+            'id' => $loan->id,
+        ]);
     }
     
     public function destroy(Loan $loan)
     {
-        DB::transaction(function () use ($loan) {
-            // Delete items first to maintain integrity
-            $loan->loanItems()->delete();
-            
-            // Then delete the loan
-            $loan->delete();
-        });
-
-        return redirect()->route('peminjaman.index')->with('success', 'Peminjaman berhasil dihapus');
+        $loan->delete();
+        return response()->json(['message' => 'Deleted successfully', 'id' => $loan->id]);
     }
 }

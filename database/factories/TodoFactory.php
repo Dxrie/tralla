@@ -25,24 +25,25 @@ class TodoFactory extends Factory
         return [
             'title' => fake()->sentence(3),
             'description' => fake()->optional(0.6)->paragraph(),
-            'status' => fake()->randomElement(['to-do', 'on progress', 'hold', 'done']),
+            'status' => fake()->randomElement(['On Progress', 'Hold', 'Done']),
             'start_date' => $start,
             'finish_date' => $finish,
         ];
     }
 
-    public function todo(): static
-    {
-        return $this->state(fn (array $attributes) => ['status' => 'to-do']);
-    }
-
     public function onProgress(): static
     {
-        return $this->state(fn (array $attributes) => ['status' => 'on progress']);
+        return $this->state(fn (array $attributes) => ['status' => 'On Progress']);
+    }
+
+    
+    public function hold(): static
+    {
+        return $this->state(fn (array $attributes) => ['status' => 'Hold']);
     }
 
     public function done(): static
     {
-        return $this->state(fn (array $attributes) => ['status' => 'done']);
+        return $this->state(fn (array $attributes) => ['status' => 'Done']);
     }
 }

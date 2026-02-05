@@ -31,6 +31,17 @@ class UserSeeder extends Seeder
             ]
         );
 
+        // Fixed employee for login
+        User::firstOrCreate(
+            ['email' => 'employee@gmail.com'],
+            [
+                'name' => 'Employee 1',
+                'password' => Hash::make('12345'),
+                'role' => 'employee',
+                'division_id' => null,
+            ]
+        );
+
         // Employees with divisions
         User::factory()
             ->count(20)

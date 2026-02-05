@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('todos', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('description')->nullable();
+            $table->text('description')->nullable();
             $table->enum('status', ['On Progress', 'Hold', 'Done']);
             $table->date('start_date');
             $table->date('finish_date')->nullable();

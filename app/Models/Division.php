@@ -17,4 +17,9 @@ class Division extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function loans(): HasMany
+    {
+        return $this->hasMany(Loan::class);
+    }
 }

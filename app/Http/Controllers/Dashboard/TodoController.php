@@ -111,22 +111,20 @@ class TodoController extends Controller
     public function update(Request $request, Todo $todo)
     {
         $validated = $request->validate([
-            'title' => 'string|max:255',
-            'status' => 'required',
-            'start_date' => 'date',
+            'title'       => 'string|max:255',
+            'status'      => 'required',
+            'start_date'  => 'date',
             'finish_date' => 'nullable|date',
             'description' => 'nullable|string',
-            'subtasks' => 'nullable|array',
-            'subtasks.*' => 'nullable|string|max:255'
+            'subtasks'    => 'nullable|array',
+            'subtasks.*'  => 'nullable|string|max:255'
         ]);
 
-        $data = $validated;
-
         if ($request->status === 'done' && !$request->filled('finish_date') && $todo->finish_date === null) {
-            $data['finish_date'] = now();
+            $validated['finish_date'] = now();
         }
 
-        $todo->update($data);
+        $todo->update($validated);
 
         // Handle subtasks: update existing ones, add new ones
         $existingSubtasks = $todo->subtasks;

@@ -44,6 +44,27 @@ Route::middleware('auth')->group(function () {
             Route::get('/izin', 'index')->name('izin.index');
         });
 
+        Route::controller(TodoController::class)->group(function () {
+            Route::get('/todo', 'index')->name('todo.index');
+            Route::post('/todo', 'store')->name('todo.store');
+            Route::put('/todo/{todo}', 'update')->name('todo.update');
+            Route::delete('/todo/{todo}', 'destroy')->name('todo.destroy');
+            Route::patch('/todo/subtask/{subtask}/toggle', 'toggleSubtask')->name('todo.subtask.toggle');
+        });
+
+        Route::controller(LoanController::class)->group(function () {
+            Route::get('/loan', 'index')->name('loan.index');
+            Route::post('/loan', 'store')->name('loan.store');
+            Route::put('/loan/{loan}', 'update')->name('loan.update');
+            Route::delete('/loan/{loan}', 'destroy')->name('loan.destroy');
+        });
+
+        Route::controller(LaporanController::class)->group(function () {
+            Route::get('/laporan', 'index')->name('laporan.index');
+        });
+
+        Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
         Route::controller(ProfileController::class)->group(function () {
             Route::get('/profile', 'index')->name('profile.index');
             Route::put('/profile/update', 'update')->name('profile.update');
@@ -73,26 +94,4 @@ Route::middleware('auth')->group(function () {
             Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
         });
     });
-
-    Route::controller(TodoController::class)->group(function () {
-        Route::get('/todo', 'index')->name('todo.index');
-        Route::post('/todo', 'store')->name('todo.store');
-        Route::put('/todo/{todo}', 'update')->name('todo.update');
-        Route::delete('/todo/{todo}', 'destroy')->name('todo.destroy');
-        Route::patch('/todo/subtask/{subtask}/toggle', 'toggleSubtask')->name('todo.subtask.toggle');
-    });
-
-    Route::controller(LoanController::class)->group(function () {
-        Route::get('/peminjaman', 'index')->name('peminjaman.index');
-        Route::post('/peminjaman', 'store')->name('peminjaman.store');
-        Route::get('/peminjaman/{loan}/edit', [LoanController::class, 'edit'])->name('peminjaman.edit');
-        Route::delete('/peminjaman/{loan}', [LoanController::class, 'destroy'])->name('peminjaman.destroy');
-        Route::put('/peminjaman/{loan}', [LoanController::class, 'update'])->name('peminjaman.update');
-    });
-
-    Route::controller(LaporanController::class)->group(function () {
-        Route::get('/laporan', 'index')->name('laporan.index');
-    });
-
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });

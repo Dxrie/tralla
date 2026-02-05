@@ -76,10 +76,10 @@
                 </a>
             </li>
 
-            <!-- Peminjaman Barang -->
+            <!-- Loan Barang -->
             <li class="nav-item">
-                <a href="{{ route('peminjaman.index') }}"
-                    class="nav-link {{ request()->routeIs('peminjaman.index') ? 'active' : 'link-dark' }} d-flex align-items-center">
+                <a href="{{ route('loan.index') }}"
+                    class="nav-link {{ request()->routeIs('loan.index') ? 'active' : 'link-dark' }} d-flex align-items-center">
                     <i class="bi bi-box-seam-fill me-3"></i>
                     <span>Peminjaman Barang</span>
                 </a>
