@@ -7,8 +7,9 @@ use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\AbsensiController;
 use App\Http\Controllers\Dashboard\IzinController;
 use App\Http\Controllers\Dashboard\LaporanController;
-use App\Http\Controllers\Dashboard\PeminjamanController;
+use App\Http\Controllers\Dashboard\LoanController;
 use App\Http\Controllers\Dashboard\TodoController;
+use App\Models\Loan;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -58,12 +59,12 @@ Route::middleware('auth')->group(function () {
         Route::delete('/todo/{todo}', 'destroy')->name('todo.destroy');
     });
 
-    Route::controller(PeminjamanController::class)->group(function () {
+    Route::controller(LoanController::class)->group(function () {
         Route::get('/peminjaman', 'index')->name('peminjaman.index');
         Route::post('/peminjaman', 'store')->name('peminjaman.store');
-        Route::get('/peminjaman/{borrow}/edit', [PeminjamanController::class, 'edit'])->name('peminjaman.edit');
-        Route::delete('/peminjaman/{borrow}', [PeminjamanController::class, 'destroy'])->name('peminjaman.destroy');
-        Route::put('/peminjaman/{borrow}', [PeminjamanController::class, 'update'])->name('peminjaman.update');
+        Route::get('/peminjaman/{loan}/edit', [LoanController::class, 'edit'])->name('peminjaman.edit');
+        Route::delete('/peminjaman/{loan}', [LoanController::class, 'destroy'])->name('peminjaman.destroy');
+        Route::put('/peminjaman/{loan}', [LoanController::class, 'update'])->name('peminjaman.update');
     });
 
     Route::controller(LaporanController::class)->group(function () {
