@@ -11,7 +11,7 @@ class LoanItem extends Model
     
     protected $fillable = [
         'loan_id',
-        'nama_barang',
+        'name',
     ];
 
     public function loan()

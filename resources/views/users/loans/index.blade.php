@@ -1,23 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Daftar To-Do • Tralla')
+@section('title', 'Tralla - Peminjaman Barang')
 
 @section('content')
-@if (session('success'))
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle-fill me-2"></i>
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-@endif
-
 <div class="w-100 h-100 d-flex flex-column gap-4">
     {{-- Header --}}
-    <div class="d-flex justify-content-between align-items-center">
-        <h3 class="fw-bold text-center mb-0">To-Do List</h3>
-        <button id='openModalBtn' type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#todoModal">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-center mb-0">Peminjaman Barang</h3>
+        <button id='openModalBtn' type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#formModal">
             <i class="bi bi-plus-lg"></i>
-            <span>Tambah To-Do</span>
+            <span>Tambah Peminjaman</span>
         </button>
     </div>
 
@@ -27,16 +19,16 @@
             <div class="col-12 col-md-4">
                 <label class="form-label mb-1">Search</label>
                 <input type="text" name="search" value="{{ request('search') }}" class="form-control"
-                    placeholder="Cari title todo...">
+                    placeholder="Cari title peminjaman...">
             </div>
 
             <div class="col-6 col-md-2">
-                <label class="form-label mb-1">Status</label>
-                <select name="status" class="form-select">
+                <label class="form-label mb-1">Divisi</label>
+                <select name="division" class="form-select">
                     <option value="">Semua</option>
-                    @foreach ($statuses as $status)
-                        <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
-                            {{ $status }}
+                    @foreach ($divisions as $division)
+                        <option value="{{ $division->name }}" {{ request('division') == $division->name ? 'selected' : '' }}>
+                            {{ $division->name }}
                         </option>
                     @endforeach
                 </select>
@@ -93,38 +85,36 @@
             <table class="table table-hover mb-0" style="font-size:0.925rem;">
                 <thead>
                     <tr class="text-center">
-                        <th style="width: 5%;">ID</th>
-                        <th style="width: 15%;" class="text-start">Title</th>
+                        <th style="width: 5%;">No</th>
+                        <th style="width: 20%;" class="text-start">Title</th>
                         <th style="width: 20%;" class="text-start">Description</th>
-                        <th style="width: 15%;">Status</th>
-                        <th style="width: 15%;">Starting Date</th>
-                        <th style="width: 15%;">Finish Date</th>
+                        <th style="width: 15%;">Division</th>
+                        <th style="width: 15%;">Date of Loan</th>
                         <th style="width: 15%;">Action</th>
                     </tr>
                 </thead>
-
-                <tbody id="todoTableBody">
-                    @forelse ($todos as $index => $todo)
-                        @include('users.todos.partials.table_row', ['todo' => $todo, 'index' => $index + 1])
+                <tbody id="loanTableBody">
+                    @forelse ($loans as $index => $loan)
+                        @include('users.loans.partials.table-row', ['loan' => $loan, 'index' => $index + 1])
                     @empty
                         <tr class="text-center">
-                            <td colspan="7">Belum ada data</td>
+                            <td colspan="6">Belum ada data</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
         <div class="d-flex justify-content-center mt-3" id="paginationContainer">
-                {{ $todos->appends(request()->query())->links() }}
+                {{ $loans->appends(request()->query())->links() }}
         </div>
     </div>
 </div>
 
 {{-- Form Modal --}}
-@include('users.todos.partials.form-modal')
+@include('users.loans.partials.form-modal')
 
 {{-- View Modal --}}
-@include('users.todos.partials.view-modal')
+@include('users.loans.partials.view-modal')
 
 <style>
 .modal-dialog-scrollable .modal-body {
@@ -146,40 +136,34 @@
 
 @push('scripts')
 <script type="module">
-const todoRoutes = {
-    store: '{{ route("todo.store") }}',
-    update: '{{ route("todo.update", ":id") }}',
-    destroy: '{{ route("todo.destroy", ":id") }}'
+const loanRoutes = {
+    store: '{{ route("loan.store") }}',
+    update: '{{ route("loan.update", ":id") }}',
+    destroy: '{{ route("loan.destroy", ":id") }}'
 };
 
-$(function() {
-    const $form      = $('#todoForm');
+$(function () {
+    const $form      = $('#loanForm');
     const $inputs    = $form.find('input:not([name="_method"]), select, textarea');
     const $submitBtn = $form.find('button[type="submit"]');
     const $buttons   = $form.find('button[type="button"]:not(.btn-close)');
     const $spinner   = $('#submitSpinner');
-    const $wrapper   = $('#subtasksWrapper');
-    const $addBtn    = $('#addSubtaskBtn');
+    const $wrapper   = $('#itemsWrapper');
+    const $addBtn    = $('#addItemBtn');
 
     $addBtn.on('click', function () {
         $wrapper.append(`
-            <div class="subtask-item d-flex gap-2 mb-2">
-                <input type="text"
-                    name="subtasks[]"
-                    class="form-control form-control-sm"
-                    placeholder="Subtask name">
-                <button type="button"
-                    class="btn btn-outline-danger btn-sm remove-subtask">
-                    &times;
-                </button>
+            <div class="d-flex flex-row mb-2 item-row gap-2">
+                <input type="text" name="items[]" id="create_item" class="form-control form-control-sm">
+                <button type="button" class="btn btn-outline-danger btn-sm remove-item"><i class="bi bi-trash"></i></button>
             </div>
         `);
 
         $wrapper.parent()[0].scrollTop = $wrapper.parent()[0].scrollHeight;
     });
 
-    $wrapper.on('click', '.remove-subtask', function () {
-        $(this).closest('.subtask-item').remove();
+    $wrapper.on('click', '.remove-item', function () {
+        $(this).closest('.item-row').remove();
     });
 
     $('[data-bs-dismiss="modal"]').on('click', function() {
@@ -199,11 +183,19 @@ $(function() {
         $form[0].reset();
         $wrapper.empty();
 
-        $form.attr('action', '{{ route("todo.store") }}');
-        $('#formMethod').val('POST');
-        $('#todoId').val('');
+        // Add one initial item input
+        $wrapper.append(`
+            <div class="d-flex flex-row mb-2 item-row gap-2">
+                <input type="text" name="items[]" id="create_item" class="form-control form-control-sm" required>
+                <button type="button" class="btn btn-outline-danger btn-sm remove-item"><i class="bi bi-trash"></i></button>
+            </div>
+        `);
 
-        $('#todoModalTitle').text('New To-Do');
+        $form.attr('action', '{{ route("loan.store") }}');
+        $('#formMethod').val('POST');
+        $('#loanId').val('');
+
+        $('#formModalTitle').text('Create New Loan');
         $('#submitBtnText').text('Simpan');
     });
 
@@ -245,11 +237,19 @@ $(function() {
                 $buttons.prop('disabled', false);
                 $spinner.addClass('d-none');
 
-                Swal.fire(
-                    'Error!',
-                    'Something went wrong.',
-                    'error'
-                );
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: xhr.responseJSON.message,
+                    });
+                } else {
+                    Swal.fire(
+                        'Error!',
+                        'Something went wrong.',
+                        'error'
+                    );
+                }
 
                 if (xhr.status === 422) {
                     const errors = xhr.responseJSON.errors;
@@ -272,19 +272,16 @@ $(function() {
     $('.filter-form').on('submit', function (e) {
         e.preventDefault();
 
-        const formData = new FormData(this);
-        formData.append('ajax', '1');
-
         $('#filterBtn').prop('disabled', true);
         $('#filterResetBtn').prop('disabled', true);
         $('#filterBtn').find('#filterSpinner').removeClass('d-none');
 
         $.ajax({
-            url: '{{ route("todo.index") }}',
+            url: '{{ route("loan.index") }}',
             method: 'GET',
-            data: $(this).serialize(),
+            data: $(this).serialize() + '&ajax=1',
             success: function (res) {
-                $('#todoTableBody').html(res.html);
+                $('#loanTableBody').html(res.html);
                 $('#paginationContainer').html(res.pagination);
             },
             error: function (xhr) {
@@ -319,7 +316,7 @@ $(function() {
             method: 'GET',
             data: { ajax: '1' },
             success: function (res) {
-                $('#todoTableBody').html(res.html);
+                $('#loanTableBody').html(res.html);
                 $('#paginationContainer').html(res.pagination);
             },
             error: function (xhr) {
@@ -332,40 +329,46 @@ $(function() {
         });
     });
 
-    // EDIT MODE TODO FORM
-    $('tbody').on('click', '.editTodoBtn', function () {
+    // OPEN EDIT MODE FORM
+    $('tbody').on('click', '.editLoanBtn', function () {
         const data = $(this).data();
 
-        $form.attr('action', todoRoutes.update.replace(':id', data.id));
+        $form.attr('action', loanRoutes.update.replace(':id', data.id));
         $('#formMethod').val('PUT');
-        $('#todoId').val(data.id);
+        $('#loanId').val(data.id);
 
-        $('#todoForm input[name="title"]').val(data.title);
-        $('#todoForm input[name="description"]').val(data.description);
-        $('#todoForm select[name="status"]').val(data.status);
-        $('#todoForm input[name="start_date"]').val(data.start_date);
-        $('#todoForm input[name="finish_date"]').val(data.finish_date);
+        $('#loanForm input[name="title"]').val(data.title);
+        $('#loanForm input[name="description"]').val(data.description);
+        $('#loanForm select[name="division_id"]').val(data.division_id);
+        $('#loanForm input[name="date"]').val(data.date);
 
         $wrapper.empty();
 
-        if (data.subtasks) {
-            data.subtasks.forEach(name => {
+        if (data.items && data.items.length > 0) {
+            data.items.forEach(name => {
                 $wrapper.append(`
-                    <div class="subtask-item d-flex gap-2 mb-2">
-                        <input type="text" name="subtasks[]" class="form-control form-control-sm" value="${name}">
-                        <button type="button" class="btn btn-outline-danger btn-sm remove-subtask">&times;</button>
+                    <div class="item-row d-flex flex-row mb-2 gap-2">
+                        <input type="text" name="items[]" class="form-control form-control-sm" value="${name}" required>
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-item"><i class="bi bi-trash"></i></button>
                     </div>
                 `);
             });
+        } else {
+            // Add one initial item if no items exist
+            $wrapper.append(`
+                <div class="d-flex flex-row mb-2 item-row gap-2">
+                    <input type="text" name="items[]" id="create_item" class="form-control form-control-sm" required>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-item"><i class="bi bi-trash"></i></button>
+                </div>
+            `);
         }
 
-        $('#todoModalTitle').text('Edit To-Do');
+        $('#formModalTitle').text('Edit To-Do');
         $('#submitBtnText').text('Update');
     });
 
-    // DELETE TODO (AJAX)
-    $('tbody').on('click', '.deleteTodoBtn', function () {
-        const todoId = $(this).data('id');
+    $('tbody').on('click', '.deleteLoanBtn', function () {
+        const loanId = $(this).data('id');
         const title = $(this).data('title');
         const $row = $(this).closest('tr');
 
@@ -382,7 +385,7 @@ $(function() {
             if (result.isConfirmed) {
                 Swal.fire({
                     title: 'Deleting...',
-                    text: 'Please wait while we delete the .',
+                    text: 'Please wait while we delete the todo.',
                     allowOutsideClick: false,
                     showConfirmButton: false,
                     willOpen: () => {
@@ -391,7 +394,7 @@ $(function() {
                 });
 
                 $.ajax({
-                    url: todoRoutes.destroy.replace(':id', todoId),
+                    url: loanRoutes.destroy.replace(':id', loanId),
                     method: 'DELETE',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content')
@@ -401,7 +404,7 @@ $(function() {
 
                         Swal.fire(
                             'Deleted!',
-                            'Your todo has been deleted.',
+                            'Your Loan has been deleted.',
                             'success'
                         );
 
@@ -422,182 +425,37 @@ $(function() {
         });
     });
 
-    // VIEW TODO MODAL
-    $('tbody').on('click', '.viewTodoBtn', function () {
+    // VIEW LOAN MODAL
+    $('tbody').on('click', '.viewLoanBtn', function () {
         const data = $(this).data();
 
         $('#viewTitle').text(data.title);
         $('#viewDescription').text(data.description || '-');
-        $('#viewStartDate').text(data.start_date);
-        $('#viewFinishDate').text(data.finish_date);
+        $('#viewDate').text(data.date);
+        $('#viewDivision').text(data.division);
 
-        // Status cycling
-        const statuses = ['On Progress', 'Hold', 'Done'];
-        let currentStatusIndex = statuses.indexOf(data.status);
-        let originalStatus = data.status;
-        $('#currentStatus').text(data.status);
-        $('#statusValue').val(data.status);
-        $('#todoIdForStatus').val(data.id);
-
-        $('#prevStatusBtn').off('click').on('click', function () {
-            currentStatusIndex = (currentStatusIndex - 1 + statuses.length) % statuses.length;
-            updateStatus(statuses[currentStatusIndex], data.id, originalStatus);
-        });
-
-        $('#nextStatusBtn').off('click').on('click', function () {
-            currentStatusIndex = (currentStatusIndex + 1) % statuses.length;
-            updateStatus(statuses[currentStatusIndex], data.id, originalStatus);
-        });
-
-        // Subtasks
-        const $subtasksContainer = $('#viewSubtasks');
-        $subtasksContainer.empty();
-        if (data.subtasks && data.subtasks.length > 0) {
-            data.subtasks.forEach(subtask => {
-                $subtasksContainer.append(`
+        // Items
+        const $itemsContainer = $('#viewItems');
+        $itemsContainer.empty();
+        if (data.items && data.items.length > 0) {
+            data.items.forEach((name, index) => {
+                $itemsContainer.append(`
                     <div class="d-flex align-items-center gap-3 mb-2 p-2 rounded-2 border">
-                        <input class="form-check-input view-subtask-checkbox mt-0" type="checkbox" data-subtask-id="${subtask.id}" ${subtask.is_done ? 'checked' : ''}>
-                        <span class="fw-medium ${subtask.is_done ? 'text-decoration-line-through text-muted' : ''}">${subtask.name}</span>
+                        <span class="badge bg-primary rounded-pill">${index + 1}</span>
+                        <span class="fw-medium">${name}</span>
                     </div>
                 `);
             });
         } else {
-            $subtasksContainer.append(`<div class="text-center py-4">
+            $itemsContainer.append(`
+                <div class="text-center py-4">
                     <i class="bi bi-inbox-fill text-muted" style="font-size: 3rem;"></i>
                     <p class="text-muted mt-2">No items found</p>
-                </div>`);
+                </div>
+            `);
         }
     });
-
-    // TOGGLE SUBTASK IN VIEW MODAL (AJAX)
-    $('#viewModal').on('change', '.view-subtask-checkbox', function () {
-        const subtaskId = $(this).data('subtask-id');
-        const $checkbox = $(this);
-        const $span = $checkbox.siblings('span');
-
-        // Show loading Swal
-        Swal.fire({
-            title: 'Updating...',
-            text: 'Please wait while we update the subtask.',
-            allowOutsideClick: false,
-            showConfirmButton: false,
-            willOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        $.ajax({
-            url: `/todo/subtask/${subtaskId}/toggle`,
-            method: 'PATCH',
-            data: {
-                _token: $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function (res) {
-                Swal.close();
-
-                $checkbox.prop('checked', res.is_done);
-
-                if (res.is_done) {
-                    $span.addClass('text-decoration-line-through text-muted');
-                } else {
-                    $span.removeClass('text-decoration-line-through text-muted');
-                }
-
-                Swal.fire(
-                    'Success',
-                    'This subtask has now been marked done!',
-                    'success'
-                );
-
-                // Refresh the table
-                $('.filter-form').trigger('submit');
-            },
-            error: function (xhr) {
-                Swal.close();
-
-                // Revert checkbox on error
-                $checkbox.prop('checked', !$checkbox.prop('checked'));
-                Swal.fire(
-                    'Error!',
-                    'Something went wrong.',
-                    'error'
-                );
-            }
-        });
-    });
-
-    function updateStatus(newStatus, todoId, originalStatus) {
-        const $statusSpan = $('#currentStatus');
-        $statusSpan.addClass('fade-out');
-
-        setTimeout(() => {
-            $statusSpan.text(newStatus).removeClass('fade-out').addClass('fade-in');
-            $('#statusValue').val(newStatus);
-
-            // Update status badge
-            updateStatusBadge(newStatus);
-
-            Swal.fire({
-                title: 'Updating...',
-                text: 'Please wait while we update the status.',
-                allowOutsideClick: false,
-                showConfirmButton: false,
-                willOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            $.ajax({
-                url: todoRoutes.update.replace(':id', todoId),
-                method: 'POST',
-                data: {
-                    _method: 'PUT',
-                    status: newStatus,
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function (res) {
-                    Swal.close();
-
-                    Swal.fire(
-                        'Success',
-                        'Status updated successfully!',
-                        'success'
-                    );
-
-                    // Refresh the table
-                    $('.filter-form').trigger('submit');
-                },
-                error: function (xhr) {
-                    Swal.close();
-
-                    // Revert to original status on error
-                    $statusSpan.text(originalStatus);
-                    $('#statusValue').val(originalStatus);
-                    updateStatusBadge(originalStatus);
-
-                    Swal.fire(
-                        'Error!',
-                        'Something went wrong. Status reverted to original.',
-                        'error'
-                    );
-                }
-            });
-        }, 150);
-    }
-
-    function updateStatusBadge(status) {
-        const $badge = $('#statusBadge');
-        $badge.removeClass('bg-warning bg-danger bg-success').text(status);
-
-        if (status === 'On Progress') {
-            $badge.addClass('bg-warning');
-        } else if (status === 'Hold') {
-            $badge.addClass('bg-danger');
-        } else if (status === 'Done') {
-            $badge.addClass('bg-success');
-        }
-    }
-})
+});
 </script>
 @endpush
 

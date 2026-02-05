@@ -8,18 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('loan_items', function (Blueprint $table) {
+        Schema::create('loans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('loan_id')->constrained(
-                table: 'loans', indexName: 'items_loan_id'
-            );
-            $table->string('nama_barang');
+            $table->foreignId('division_id')->constrained('divisions');
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->date('date');
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('loan_items');
+        Schema::dropIfExists('loans');
     }
 };

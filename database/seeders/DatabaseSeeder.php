@@ -17,7 +17,8 @@ class DatabaseSeeder extends Seeder
             EntryActivitySeeder::class,
             ExitActivitySeeder::class,
             AbsentSeeder::class,
-            BorrowSeeder::class,
+            LoanSeeder::class,
+            LoanItemSeeder::class,
             TodoSeeder::class,
         ]);
     }
