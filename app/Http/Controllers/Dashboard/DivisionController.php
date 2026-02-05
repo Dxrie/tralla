@@ -21,13 +21,22 @@ class DivisionController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:divisions,name'],
         ]);
 
-        Division::create([
+        $division = Division::create([
             'name' => $validated['name'],
         ]);
 
-        return redirect()
-            ->route('divisi.index')
-            ->with('success', 'Divisi berhasil ditambahkan.');
+        $count = Division::count();
+
+        $html = view('users.divisions.partials.row', [
+            'division' => $division,
+            'loop' => (object) ['iteration' => $count]
+        ])->render();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Divisi berhasil ditambahkan.',
+            'html' => $html,
+        ], 201);
     }
 
     public function update(Request $request, Division $division)

@@ -22,23 +22,11 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->createMany([
             [
-                'name' => 'Colin Edric Mickynson',
-                'email' => 'colinedric04@gmail.com',
-                'password' => Hash::make('colinedric'),
+                'name' => 'Employer',
+                'email' => 'employer@gmail.com',
+                'password' => Hash::make('12345'),
                 'role' => 'employer',
             ],
-            /*
-            [
-                'name' => 'Declane Joseph Delvino',
-                'email' => 'declanecun@gmail.com',
-                'password' => Hash::make('declane123'),
-            ],
-            [
-                'name' => 'Jose Keitaro',
-                'email' => 'josekeitaro2008@gmail.com',
-                'password' => Hash::make('jose321'),
-            ]
-                */
         ]);
     }
 }

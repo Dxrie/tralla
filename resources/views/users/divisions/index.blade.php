@@ -53,20 +53,17 @@
                                     <td class="fw-medium">{{ $division->name }}</td>
                                     <td class="text-end pe-4">
                                         <div class="btn-group" role="group">
-                                            <button type="button" 
-                                                    class="btn btn-sm btn-outline-primary"
-                                                    data-bs-toggle="modal" 
-                                                    data-bs-target="#editModal"
-                                                    data-id="{{ $division->id }}"
-                                                    data-name="{{ $division->name }}">
+                                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                                data-bs-toggle="modal" data-bs-target="#editModal"
+                                                data-id="{{ $division->id }}" data-name="{{ $division->name }}">
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
                                             <form method="POST" action="{{ route('divisi.destroy', $division) }}"
-                                                onsubmit="return confirm('Hapus divisi ini?')"
-                                                class="d-inline">
+                                                onsubmit="return confirm('Hapus divisi ini?')" class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
                                             </form>
@@ -74,7 +71,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr>
+                                <tr id="noDivision">
                                     <td colspan="3" class="text-center py-5 text-muted">
                                         <div class="d-flex flex-column align-items-center justify-content-center">
                                             <i class="bi bi-inbox fs-1 mb-3 text-secondary"></i>
@@ -98,17 +95,19 @@
                     <h5 class="modal-title fw-bold" id="createModalLabel">Tambah Divisi Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="POST" action="{{ route('divisi.store') }}">
+                <form id="createForm" method="POST" action="{{ route('divisi.store') }}">
                     @csrf
                     <div class="modal-body pt-4">
                         <div class="mb-3">
-                            <label for="createName" class="form-label text-muted small text-uppercase fw-bold">Nama Divisi</label>
-                            <input type="text" class="form-control form-control-lg" id="createName" name="name" placeholder="Contoh: HR, Finance, Engineering" required>
+                            <label for="createName" class="form-label text-muted small text-uppercase fw-bold">Nama
+                                Divisi</label>
+                            <input type="text" class="form-control form-control-lg" id="createName" name="name"
+                                placeholder="Contoh: HR, Finance, Engineering" required>
                         </div>
                     </div>
                     <div class="modal-footer border-top-0">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary px-4">Simpan</button>
+                        <button id="btnSave" type="submit" class="btn btn-primary px-4">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -128,8 +127,10 @@
                     @method('PUT')
                     <div class="modal-body pt-4">
                         <div class="mb-3">
-                            <label for="editName" class="form-label text-muted small text-uppercase fw-bold">Nama Divisi</label>
-                            <input type="text" class="form-control form-control-lg" id="editName" name="name" required>
+                            <label for="editName" class="form-label text-muted small text-uppercase fw-bold">Nama
+                                Divisi</label>
+                            <input type="text" class="form-control form-control-lg" id="editName" name="name"
+                                required>
                         </div>
                     </div>
                     <div class="modal-footer border-top-0">
@@ -142,24 +143,69 @@
     </div>
 
     @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var editModal = document.getElementById('editModal');
-            editModal.addEventListener('show.bs.modal', function(event) {
-                var button = event.relatedTarget;
-                var id = button.getAttribute('data-id');
-                var name = button.getAttribute('data-name');
-                
-                var form = document.getElementById('editForm');
-                var nameInput = document.getElementById('editName');
-                
-                // Update form action URL
-                form.action = "{{ route('divisi.update', ':id') }}".replace(':id', id);
-                
-                // Update input value
-                nameInput.value = name;
+        <script type="module">
+            $(document).ready(function() {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $('#createForm').on('submit', function(e) {
+                    e.preventDefault();
+
+                    const btn = $('#btnSave');
+                    btn.prop('disabled', true).text('Loading...');
+
+                    $.ajax({
+                        url: $(this).attr('action'),
+                        type: 'POST',
+                        data: $(this).serialize(),
+                        success: async function(response) {
+                            const createModal = $('#createModal');
+                            const modal = Modal.getOrCreateInstance(createModal);
+                            modal.hide();
+
+                            $('#createForm')[0].reset();
+
+                            if ($('#noDivision').length) {
+                                $('#noDivision').remove();
+                            }
+
+                            $('table tbody').append(response.html);
+
+                            await Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: 'Divisi telah ditambahkan.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                        },
+                        error: function(xhr) {
+                            btn.prop('disabled', false).text('Simpan');
+
+                            let response = xhr.responseJSON;
+                            let errorHtml = '';
+
+                            if (xhr.status === 422 && response.errors) {
+                                errorHtml = Object.values(response.errors)
+                                    .map(error => `<li>${error}</li>`)
+                                    .join('');
+                                errorHtml = `<ul class="text-start mb-0">${errorHtml}</ul>`;
+                            } else {
+                                errorHtml = response.message || 'Terjadi kesalahan sistem.';
+                            }
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Whoops!',
+                                html: errorHtml,
+                            });
+                        }
+                    });
+                });
             });
-        });
-    </script>
+        </script>
     @endpush
 @endsection
