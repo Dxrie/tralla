@@ -3,13 +3,32 @@
 @section('title', 'Divisi • Tralla')
 
 @section('content')
+    <style>
+        .modal-dialog-scrollable .modal-body {
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .dashed-border {
+            border-style: dashed;
+            border-width: 1px;
+            border-color: #ced4da;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+        }
+    </style>
+
     <div class="container-fluid py-4">
         {{-- Header --}}
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="h4 text-gray-800 mb-0">Manajemen Divisi</h2>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
-                <i class="bi bi-plus-lg me-2"></i>Tambah Divisi
-            </button>
+        <div class="row mb-4">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <h2 class="h4 text-gray-800 mb-0">Manajemen Divisi</h2>
+                <button type="button" class="btn btn-primary" id="btn-open-create">
+                    <i class="bi bi-plus-lg me-2"></i>Tambah Divisi
+                </button>
+            </div>
         </div>
 
         {{-- Alerts --}}
@@ -21,24 +40,11 @@
             </div>
         @endif
 
-        @if ($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0" role="alert">
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <strong>Whoops!</strong> Ada masalah dengan input anda:
-                <ul class="mb-0 mt-2">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
         {{-- Table Card --}}
         <div class="card shadow border-0">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
+                    <table class="table table-hover align-middle mb-0" id="divisions-table">
                         <thead class="bg-light">
                             <tr>
                                 <th class="text-center py-3" style="width: 5%;">No</th>
@@ -48,7 +54,7 @@
                         </thead>
                         <tbody>
                             @forelse ($divisions as $division)
-                                <tr>
+                                <tr id="division-{{ $division->id }}">
                                     <td class="text-center text-muted">{{ $loop->iteration }}</td>
                                     <td class="fw-medium">{{ $division->name }}</td>
                                     <td class="text-end pe-4">
@@ -59,10 +65,11 @@
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
                                             <form method="POST" action="{{ route('divisi.destroy', $division) }}"
-                                                onsubmit="return confirm('Hapus divisi ini?')" class="d-inline">
+                                                class="d-inline delete-form">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger btn-delete-static"
                                                     style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
                                                     <i class="bi bi-trash"></i>
                                                 </button>
@@ -87,9 +94,9 @@
         </div>
     </div>
 
-    {{-- Create Modal --}}
+    {{-- Create Modal (Dynamic) --}}
     <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content border-0 shadow">
                 <div class="modal-header border-bottom-0 pb-0">
                     <h5 class="modal-title fw-bold" id="createModalLabel">Tambah Divisi Baru</h5>
@@ -98,11 +105,14 @@
                 <form id="createForm" method="POST" action="{{ route('divisi.store') }}">
                     @csrf
                     <div class="modal-body pt-4">
-                        <div class="mb-3">
-                            <label for="createName" class="form-label text-muted small text-uppercase fw-bold">Nama
-                                Divisi</label>
-                            <input type="text" class="form-control form-control-lg" id="createName" name="name"
-                                placeholder="Contoh: HR, Finance, Engineering" required>
+                        {{-- Container for Dynamic Rows --}}
+                        <div id="division-fields-container"></div>
+
+                        {{-- Add More Button --}}
+                        <div class="d-grid gap-2">
+                            <button type="button" id="add-more-btn" class="btn btn-outline-primary border-dashed">
+                                <i class="bi bi-plus-circle me-1"></i> Tambah Baris
+                            </button>
                         </div>
                     </div>
                     <div class="modal-footer border-top-0">
@@ -110,6 +120,23 @@
                         <button id="btnSave" type="submit" class="btn btn-primary px-4">Simpan</button>
                     </div>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Hidden Template for New Rows --}}
+    <div id="division-row-template" class="d-none">
+        <div class="division-row dashed-border position-relative">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-secondary">Data Divisi</span>
+                <button type="button" class="btn-close remove-row-btn small" aria-label="Close"></button>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label small text-muted text-uppercase fw-bold">Nama Divisi</label>
+                <input type="text" class="form-control" name="divisions[INDEX][name]" placeholder="Contoh: HR, Finance"
+                    required>
+                <div class="invalid-feedback"></div>
             </div>
         </div>
     </div>
@@ -151,11 +178,66 @@
                     }
                 });
 
+                function resetRowNumbers() {
+                    const rows = $('#divisions-table tbody tr').not('#noDivision');
+                    rows.each(function(index) {
+                        $(this).find('td:first').text(index + 1);
+                    });
+                }
+
+                const $container = $('#division-fields-container');
+                const $template = $('#division-row-template');
+
+                function addRow() {
+                    let newIndex = $('.division-row').length;
+                    let $newRow = $template.children().clone();
+
+                    $newRow.find('input').each(function() {
+                        let oldName = $(this).attr('name');
+                        if (oldName) {
+                            $(this).attr('name', oldName.replace('INDEX', newIndex));
+                        }
+                        $(this).val('').removeClass('is-invalid');
+                    });
+
+                    $container.append($newRow);
+
+                    $('.modal-body').animate({
+                        scrollTop: $('.modal-body').prop("scrollHeight")
+                    }, 500);
+                }
+
+                $('#btn-open-create').on('click', function() {
+                    $container.html('');
+                    addRow();
+                    const modal = new bootstrap.Modal(document.getElementById('createModal'));
+                    modal.show();
+                });
+
+                $('#add-more-btn').on('click', function() {
+                    addRow();
+                });
+
+                $(document).on('click', '.remove-row-btn', function() {
+                    if ($('.division-row').length > 1) {
+                        $(this).closest('.division-row').fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                    } else {
+                        Swal.fire('Info', 'Minimal satu data divisi diperlukan.', 'info');
+                    }
+                });
+
                 $('#createForm').on('submit', function(e) {
                     e.preventDefault();
-
                     const btn = $('#btnSave');
-                    btn.prop('disabled', true).text('Loading...');
+                    const originalText = btn.html();
+
+                    $('.is-invalid').removeClass('is-invalid');
+                    $('.invalid-feedback').text('');
+
+                    btn.prop('disabled', true).html(
+                        '<span class="spinner-border spinner-border-sm"></span> Menyimpan...');
 
                     $.ajax({
                         url: $(this).attr('action'),
@@ -163,10 +245,11 @@
                         data: $(this).serialize(),
                         success: async function(response) {
                             const createModal = $('#createModal');
-                            const modal = Modal.getOrCreateInstance(createModal);
+                            const modal = bootstrap.Modal.getInstance(createModal);
                             modal.hide();
 
                             $('#createForm')[0].reset();
+                            $container.html('');
 
                             if ($('#noDivision').length) {
                                 $('#noDivision').remove();
@@ -174,33 +257,160 @@
 
                             $('table tbody').append(response.html);
 
+                            resetRowNumbers();
+
                             await Swal.fire({
                                 icon: 'success',
                                 title: 'Berhasil!',
-                                text: 'Divisi telah ditambahkan.',
+                                text: response.message,
                                 timer: 1500,
                                 showConfirmButton: false
                             });
                         },
                         error: function(xhr) {
-                            btn.prop('disabled', false).text('Simpan');
+                            btn.prop('disabled', false).html(originalText);
 
-                            let response = xhr.responseJSON;
-                            let errorHtml = '';
+                            if (xhr.status === 422) {
+                                let errors = xhr.responseJSON.errors;
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Validasi Gagal',
+                                    text: 'Periksa inputan berwarna merah.'
+                                });
 
-                            if (xhr.status === 422 && response.errors) {
-                                errorHtml = Object.values(response.errors)
-                                    .map(error => `<li>${error}</li>`)
-                                    .join('');
-                                errorHtml = `<ul class="text-start mb-0">${errorHtml}</ul>`;
+                                $.each(errors, function(key, messages) {
+                                    let parts = key.split('.');
+                                    let inputName = `divisions[${parts[1]}][${parts[2]}]`;
+                                    let $input = $(`[name="${inputName}"]`);
+
+                                    if ($input.length > 0) {
+                                        $input.addClass('is-invalid');
+                                        $input.next('.invalid-feedback').text(messages[0]);
+                                    }
+                                });
                             } else {
-                                errorHtml = response.message || 'Terjadi kesalahan sistem.';
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Whoops!',
+                                    text: xhr.responseJSON?.message ||
+                                        'Terjadi kesalahan sistem.'
+                                });
                             }
+                        },
+                        complete: function() {
+                            btn.prop('disabled', false).html(originalText);
+                        }
+                    });
+                });
 
+                $('#editForm').on('submit', function(e) {
+                    e.preventDefault();
+                    const form = $(this);
+                    const id = form.data('id');
+                    const url = form.attr('action');
+                    const btn = form.find('button[type="submit"]');
+
+                    btn.prop('disabled', true).text('Updating...');
+
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: form.serialize(),
+                        success: async function(response) {
+                            const modal = bootstrap.Modal.getInstance($('#editModal'));
+                            modal.hide();
+
+                            $(`#division-${id}`).replaceWith(response.html);
+
+                            await Swal.fire({
+                                icon: 'success',
+                                title: 'Diperbarui!',
+                                text: 'Data divisi berhasil diupdate.',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            btn.prop('disabled', false).text('Update');
+                        },
+                        error: function(xhr) {
+                            btn.prop('disabled', false).text('Update');
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Whoops!',
-                                html: errorHtml,
+                                title: 'Oops!',
+                                text: xhr.responseJSON?.message
+                            });
+                        }
+                    });
+                });
+
+                $('#editModal').on('show.bs.modal', function(event) {
+                    const button = $(event.relatedTarget);
+                    const id = button.data('id');
+                    const name = button.data('name');
+                    const modal = $(this);
+
+                    modal.find('#editName').val(name);
+                    modal.find('#editForm').attr('action', `/dashboard/divisi/${id}`);
+                    modal.find('#editForm').data('id', id);
+                });
+
+                // Event Delegation
+                $(document).on('submit', '.delete-form', function(e) {
+                    e.preventDefault();
+                    const form = $(this);
+                    const url = form.attr('action');
+                    const row = form.closest('tr');
+
+                    Swal.fire({
+                        title: 'Hapus Divisi?',
+                        text: "Data yang dihapus tidak dapat dikembalikan!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: url,
+                                type: 'POST',
+                                data: form.serialize(),
+                                success: function(response) {
+                                    row.fadeOut(300, function() {
+                                        $(this).remove();
+
+                                        resetRowNumbers();
+
+                                        if ($('#divisions-table tbody tr')
+                                            .length === 0) {
+                                            $('table tbody').html(`
+                                <tr id="noDivision">
+                                    <td colspan="3" class="text-center py-5 text-muted">
+                                        <div class="d-flex flex-column align-items-center justify-content-center">
+                                            <i class="bi bi-inbox fs-1 mb-3 text-secondary"></i>
+                                            <p class="mb-0">Belum ada divisi yang dibuat.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `);
+                                        }
+                                    });
+
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Terhapus!',
+                                        text: response.message,
+                                        timer: 1500,
+                                        showConfirmButton: false
+                                    });
+                                },
+                                error: function(xhr) {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Gagal!',
+                                        text: 'Terjadi kesalahan saat menghapus data.'
+                                    });
+                                }
                             });
                         }
                     });

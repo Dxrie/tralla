@@ -10,7 +10,7 @@ class DivisionController extends Controller
 {
     public function index()
     {
-        $divisions = Division::query()->orderBy('name')->get();
+        $divisions = Division::query()->orderBy('created_at')->get();
 
         return view('users.divisions.index', compact('divisions'));
     }
@@ -18,25 +18,28 @@ class DivisionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', 'unique:divisions,name'],
+            'divisions' => 'required|array',
+            'divisions.*.name' => 'required|string|max:255|unique:divisions,name',
         ]);
 
-        $division = Division::create([
-            'name' => $validated['name'],
-        ]);
+        $newRowsHtml = '';
 
         $count = Division::count();
 
-        $html = view('users.divisions.partials.row', [
-            'division' => $division,
-            'loop' => (object) ['iteration' => $count]
-        ])->render();
+        foreach ($validated['divisions'] as $data) {
+            $division = Division::create(['name' => $data['name']]);
+
+            $newRowsHtml .= view('users.divisions.partials.row', [
+                'division' => $division,
+                'loop' => (object)['iteration' => $count]
+            ])->render();
+        }
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Divisi berhasil ditambahkan.',
-            'html' => $html,
-        ], 201);
+            'message' => 'Semua divisi berhasil ditambahkan!',
+            'html' => $newRowsHtml,
+        ], 200);
     }
 
     public function update(Request $request, Division $division)
@@ -49,17 +52,27 @@ class DivisionController extends Controller
             'name' => $validated['name'],
         ]);
 
-        return redirect()
-            ->route('divisi.index')
-            ->with('success', 'Divisi berhasil diperbarui.');
+        $count = Division::count();
+
+        $html = view('users.divisions.partials.row', [
+            'division' => $division,
+            'loop' => (object) ['iteration' => $count]
+        ])->render();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Divisi berhasil diperbarui.',
+            'html' => $html,
+        ], 200);
     }
 
     public function destroy(Division $division)
     {
         $division->delete();
 
-        return redirect()
-            ->route('divisi.index')
-            ->with('success', 'Divisi berhasil dihapus.');
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Divisi berhasil dihapus.',
+        ], 200);
     }
 }

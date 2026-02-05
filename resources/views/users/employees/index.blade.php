@@ -221,7 +221,7 @@
                 $('#editEmployeeForm .is-invalid').removeClass('is-invalid');
 
                 let modalEl = document.getElementById('editEmployeeModal');
-                let modal = Modal.getOrCreateInstance(modalEl);
+                let modal = bootstrap.Modal.getOrCreateInstance(modalEl);
                 modal.show();
             });
 
@@ -243,7 +243,7 @@
                     data: $(this).serialize(),
                     success: function(response) {
                         let modalEl = document.getElementById('editEmployeeModal');
-                        let modal = Modal.getInstance(modalEl);
+                        let modal = bootstrap.Modal.getInstance(modalEl);
                         modal.hide();
 
                         // Replace the row
@@ -316,7 +316,6 @@
                 });
             });
 
-            // Helper for Create Validation
             function handleValidationErrors(xhr, $btn, originalBtnText) {
                 $btn.prop('disabled', false).html(originalBtnText);
                 if (xhr.status === 422) {
