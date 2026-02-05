@@ -162,7 +162,7 @@
             </div>
         </div>
     </div>
-
+    
     @push('scripts')
         <script type="module">
             $(document).ready(function() {

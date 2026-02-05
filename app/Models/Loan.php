@@ -5,12 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Borrow extends Model
+class Loan extends Model
 {
     use HasFactory;
+
     protected $fillable = [
-        'nama_barang',
+        'nama_peminjam',
+        'keterangan',
+        'tanggal_pinjam',
         'divisi',
-        'foto_barang',
     ];
+
+    public function loanItems()
+    {
+        return $this->hasMany(LoanItem::class, 'loan_id');
+    }
 }
