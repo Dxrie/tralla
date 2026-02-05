@@ -51,7 +51,7 @@
         <div class="w-100 rounded-2 bg-white p-3">
             <form method="GET" class="row g-2 align-items-end">
                 <div class="col-12 col-md-4">
-                    <label class="form-label mb-1">Search nama</label>
+                    <label class="form-label mb-1">Search</label>
                     <input type="text" name="search" value="{{ request('search') }}" class="form-control"
                         placeholder="Cari nama karyawan...">
                 </div>
@@ -79,7 +79,7 @@
                 </div>
 
                 <div class="col-6 col-md-2">
-                    <label class="form-label mb-1">Per halaman</label>
+                    <label class="form-label mb-1">Absensi per Halaman</label>
                     <select name="per_page" class="form-select">
                         @foreach ([10, 25, 50, 100] as $pp)
                             <option value="{{ $pp }}" @selected((int) request('per_page', 10) === $pp)>{{ $pp }}</option>
@@ -162,7 +162,7 @@
             </div>
         </div>
     </div>
-
+    
     @push('scripts')
         <script type="module">
             $(document).ready(function() {

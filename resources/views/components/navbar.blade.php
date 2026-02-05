@@ -4,7 +4,7 @@
         <!-- Website Logo -->
         <a class="navbar-brand d-flex align-items-center h-100" href="{{ $homeRoute() }}">
             <span class="fw-bold fs-4 text-dark">
-                {{ config('app.name', 'MyApp') }}
+                {{ config('app.name', 'Tralla') }}
             </span>
         </a>
 

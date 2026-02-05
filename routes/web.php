@@ -9,7 +9,7 @@ use App\Http\Controllers\Dashboard\DivisionController;
 use App\Http\Controllers\Dashboard\EmployeeManagementController;
 use App\Http\Controllers\Dashboard\IzinController;
 use App\Http\Controllers\Dashboard\LaporanController;
-use App\Http\Controllers\Dashboard\PeminjamanController;
+use App\Http\Controllers\Dashboard\LoanController;
 use App\Http\Controllers\Dashboard\TodoController;
 use App\Http\Controllers\Dashboard\LogController;
 use Illuminate\Support\Facades\Route;
@@ -52,6 +52,9 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::middleware('role:employer')->group(function () {
+            Route::patch('/izin/{absent}/approve', [IzinController::class, 'approve'])->name('izin.approve');
+            Route::patch('/izin/{absent}/reject', [IzinController::class, 'reject'])->name('izin.reject');
+
             Route::controller(EmployeeManagementController::class)->group(function () {
                 Route::get('/karyawan', 'index')->name('karyawan.index');
                 Route::post('/karyawan', 'store')->name('karyawan.store');
@@ -76,16 +79,15 @@ Route::middleware('auth')->group(function () {
         Route::post('/todo', 'store')->name('todo.store');
         Route::put('/todo/{todo}', 'update')->name('todo.update');
         Route::delete('/todo/{todo}', 'destroy')->name('todo.destroy');
-        Route::patch('/todo/subtask/{todo}/toggle', 'toggleSubtask')->name('todo.subtask.toggle');
+        Route::patch('/todo/subtask/{subtask}/toggle', 'toggleSubtask')->name('todo.subtask.toggle');
     });
 
-    Route::controller(PeminjamanController::class)->group(function () {
+    Route::controller(LoanController::class)->group(function () {
         Route::get('/peminjaman', 'index')->name('peminjaman.index');
-        Route::get('/peminjaman/create', 'create')->name('peminjaman.create');
         Route::post('/peminjaman', 'store')->name('peminjaman.store');
-        Route::get('/peminjaman/{id}/edit', [PeminjamanController::class, 'edit'])->name('peminjaman.edit');
-        Route::delete('/peminjaman/{id}', [PeminjamanController::class, 'destroy'])->name('peminjaman.destroy');
-        Route::put('/peminjaman/{id}', [PeminjamanController::class, 'update'])->name('peminjaman.update');
+        Route::get('/peminjaman/{loan}/edit', [LoanController::class, 'edit'])->name('peminjaman.edit');
+        Route::delete('/peminjaman/{loan}', [LoanController::class, 'destroy'])->name('peminjaman.destroy');
+        Route::put('/peminjaman/{loan}', [LoanController::class, 'update'])->name('peminjaman.update');
     });
 
     Route::controller(LaporanController::class)->group(function () {
