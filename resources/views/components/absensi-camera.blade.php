@@ -117,7 +117,7 @@
                                 title: res.data?.title ?? 'Success',
                                 icon: res.data?.icon ?? 'success',
                                 text: res.message,
-                                timer: 5000,
+                                timer: 1500,
                             });
 
                             if (res.redirect) {
@@ -130,7 +130,7 @@
                             title: 'Error',
                             icon: 'error',
                             text: res.responseJSON.message,
-                            timer: 5000,
+                            timer: 1500,
                         });
                     },
                     complete: function() {

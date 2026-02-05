@@ -5,7 +5,6 @@ window.$ = window.jQuery = jQuery;
 window.Swal = Swal;
 
 import './bootstrap';
-import 'bootstrap';
-import { Modal } from 'bootstrap'
+import * as bs from 'bootstrap';
 
-window.Modal = Modal;
+window.bootstrap = bs;
