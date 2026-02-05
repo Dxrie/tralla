@@ -5,11 +5,13 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\AbsensiController;
+use App\Http\Controllers\Dashboard\DivisionController;
+use App\Http\Controllers\Dashboard\EmployeeManagementController;
 use App\Http\Controllers\Dashboard\IzinController;
 use App\Http\Controllers\Dashboard\LaporanController;
 use App\Http\Controllers\Dashboard\LoanController;
 use App\Http\Controllers\Dashboard\TodoController;
-use App\Models\Loan;
+use App\Http\Controllers\Dashboard\LogController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -48,15 +50,36 @@ Route::middleware('auth')->group(function () {
             Route::put('/profile/change-password', 'changePassword')->name('profile.change-password');
             Route::put('/profile/avatar', 'updateAvatar')->name('profile.avatar');
         });
+
+        Route::middleware('role:employer')->group(function () {
+            Route::patch('/izin/{absent}/approve', [IzinController::class, 'approve'])->name('izin.approve');
+            Route::patch('/izin/{absent}/reject', [IzinController::class, 'reject'])->name('izin.reject');
+
+            Route::controller(EmployeeManagementController::class)->group(function () {
+                Route::get('/karyawan', 'index')->name('karyawan.index');
+                Route::post('/karyawan', 'store')->name('karyawan.store');
+
+                Route::put('/karyawan/{id}', 'update')->name('karyawan.update');
+                Route::delete('/karyawan/{id}', 'destroy')->name('karyawan.destroy');
+            });
+
+            Route::controller(DivisionController::class)->group(function () {
+                Route::get('/divisi', 'index')->name('divisi.index');
+                Route::post('/divisi', 'store')->name('divisi.store');
+                Route::put('/divisi/{division}', 'update')->name('divisi.update');
+                Route::delete('/divisi/{division}', 'destroy')->name('divisi.destroy');
+            });
+
+            Route::get('/logs', [LogController::class, 'index'])->name('logs.index');
+        });
     });
 
     Route::controller(TodoController::class)->group(function () {
         Route::get('/todo', 'index')->name('todo.index');
         Route::post('/todo', 'store')->name('todo.store');
-        Route::get('/todo/create', 'create')->name('todo.create');
-        Route::get('/todo/{todo}/edit', 'edit')->name('todo.edit');
         Route::put('/todo/{todo}', 'update')->name('todo.update');
         Route::delete('/todo/{todo}', 'destroy')->name('todo.destroy');
+        Route::patch('/todo/subtask/{subtask}/toggle', 'toggleSubtask')->name('todo.subtask.toggle');
     });
 
     Route::controller(LoanController::class)->group(function () {

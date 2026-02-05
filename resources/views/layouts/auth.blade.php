@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -47,14 +48,33 @@
             background-color: #f8f9fa;
         }
     </style>
-
-    @livewireStyles
 </head>
-<body class="">
+
+<body>
     @yield('content')
 
     @stack('scripts')
-    @livewireScripts
-    @livewireScriptConfig
+    @if (session('success'))
+    <script type="module">
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: "{{ session('success') }}",
+            confirmButtonText: 'OK'
+        });
+    </script>
+    @endif
+    @if (session('error'))
+    <script type="module">
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: "{{ session('success') }}",
+            confirmButtonText: 'OK'
+        });
+    </script>
+    @endif
 </body>
+
 </html>
+

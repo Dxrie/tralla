@@ -110,7 +110,6 @@
                 @csrf
                 @method('PUT')
                 <div class="modal-body d-flex flex-column gap-3">
-
                     <div>
                         <label class="fw-medium mb-1">Old Password</label>
                         <input type="password" class="form-control @error('old_password') is-invalid @enderror" value="{{ old('old_password') }}" name="old_password">
@@ -120,7 +119,6 @@
                             </div>
                         @enderror
                     </div>
-
                     <div>
                         <label class="fw-medium mb-1">New Password</label>
                         <input type="password" class="form-control @error('new_password') is-invalid @enderror" name="new_password">
@@ -130,7 +128,6 @@
                             </div>
                         @enderror
                     </div>
-
                     <div>
                         <label class="fw-medium mb-1">Confirm Password</label>
                         <input type="password" class="form-control @error('new_password_confirmation') is-invalid @enderror" name="new_password_confirmation">
@@ -144,10 +141,11 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <button type="button" class="btn btn-outline-danger" id="changePassCancelBtn" data-bs-dismiss="modal">
                         Cancel
                     </button>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary" id="changePassBtn">
+                        <span class="spinner-border spinner-border-sm d-none" id="changePassSpinner"></span>
                         Update Password
                     </button>
                 </div>
@@ -181,6 +179,12 @@
     font-size: 0.925rem;
     border-bottom: 2px solid #0d6efd;
 }
+
+.form-control-p.is-invalid:not(:disabled):not([readonly]):not(p) {
+    outline: none;
+    font-size: 0.925rem;
+    border-bottom: 2px solid #dc3545 !important;
+}
 </style>
 
 <script type="module">
@@ -199,6 +203,24 @@ $(document).ready(function () {
         originalValues[this.name] = $(this).val();
     });
 
+    $inputs.on('input change', function () {
+        const $input = $(this);
+        const name   = $input.attr('name');
+        const value  = $input.val().trim();
+
+        let isValid = true;
+
+        if (name === 'name') {
+            isValid = value.length >= 3;
+        }
+
+        if (name === 'email') {
+            isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        }
+
+        $input.toggleClass('is-invalid', !isValid);
+    })
+
     // =========================
     // EDIT / SAVE BUTTON
     // =========================
@@ -208,7 +230,7 @@ $(document).ready(function () {
             $inputs.prop('readonly', false);
 
             $editBtn
-                .html('<i class="bi bi-check me-2"></i>Save')
+                .html('<span class="spinner-border spinner-border-sm d-none me-2" id="editSpinner"></span><i class="bi bi-check me-2"></i>Save')
                 .removeClass('btn-primary')
                 .addClass('btn-success');
 
@@ -216,6 +238,13 @@ $(document).ready(function () {
             isEditing = true;
             return;
         }
+
+        $editBtn
+            .prop('disabled', true)
+            .find('#editSpinner').removeClass('d-none')
+            .end()
+            .find('i').addClass('d-none')
+        $cancelBtn.prop('disabled', true)
 
         // =========================
         // AJAX SUBMIT
@@ -241,9 +270,14 @@ $(document).ready(function () {
                 $editBtn
                     .html('<i class="bi bi-pen-fill me-2"></i>Edit')
                     .removeClass('btn-success')
-                    .addClass('btn-primary');
+                    .addClass('btn-primary')
+                    .prop('disabled', false)
+                    .find('#editSpinner').removeClass('d-none')
 
-                $cancelBtn.addClass('d-none');
+                $cancelBtn
+                    .addClass('d-none')
+                    .prop('disabled', false)
+
                 isEditing = false;
 
                 // Success feedback
@@ -262,6 +296,13 @@ $(document).ready(function () {
                 });
 
                 alert('Please fix the errors.');
+
+                $editBtn
+                    .prop('disabled', false)
+                    .find('#editSpinner').addClass('d-none')
+                    .end()
+                    .find('i').removeClass('d-none')
+                $cancelBtn.prop('disabled', false)
             }
         });
     });
@@ -274,6 +315,8 @@ $(document).ready(function () {
             $(this).val(originalValues[this.name]).prop('readonly', true);
         });
 
+        $inputs.removeClass('is-invalid')
+
         $editBtn
             .html('<i class="bi bi-pen-fill me-2"></i>Edit')
             .removeClass('btn-success')
@@ -282,6 +325,18 @@ $(document).ready(function () {
         $cancelBtn.addClass('d-none');
         isEditing = false;
     });
+
+    $('#changePassCancelBtn').prop('disabled', false)
+    $('#changePassBtn').prop('disabled', false)
+    $('#changePassSpinner').addClass('d-none')
+
+    $('#change-password-form').on('submit', function() {
+        const $btn = $('#changePassBtn')
+
+        $('#changePassCancelBtn').prop('disabled', true)
+        $btn.prop('disabled', true)
+        $btn.find('#changePassSpinner').removeClass('d-none')
+    })
 
     @if ($errors->has('old_password') || 
     $errors->has('new_password') || 

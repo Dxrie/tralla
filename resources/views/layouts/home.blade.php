@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title')</title>
-    @vite(['resources/css/app.scss', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
         html,
@@ -14,7 +13,6 @@
             margin: 0;
         }
     </style>
-    @livewireStyles
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -26,10 +24,28 @@
             @yield('content')
         </div>
     </main>
-    
-    @stack('scripts')
-    @livewireScripts
-    @livewireScriptConfig
+
+    @vite(['resources/css/app.scss', 'resources/js/app.js'])
+    @if (session('success'))
+    <script type="module">
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: "{{ session('success') }}",
+            confirmButtonText: 'OK'
+        });
+    </script>
+    @endif
+    @if (session('error'))
+    <script type="module">
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: "{{ session('error') }}",
+            confirmButtonText: 'OK'
+        });
+    </script>
+    @endif
 </body>
 
 </html>

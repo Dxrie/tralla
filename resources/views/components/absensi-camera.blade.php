@@ -56,9 +56,11 @@
                     <canvas id="canvas" class="d-none"></canvas>
 
                     <div class="d-flex justify-content-end mt-4">
-                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary" id="submitBtn" disabled>Simpan
-                            Absensi
+                        <button type="button" class="btn btn-secondary me-2" id="submitCancelBtn"
+                            data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                            <span class="spinner-border spinner-border-sm d-none" id="submitSpinner"></span>
+                            Simpan Absensi
                         </button>
                     </div>
                 </form>
@@ -66,3 +68,79 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+    <script type="module">
+        $(function() {
+            $('#attendanceForm').on('submit', function(e) {
+                e.preventDefault();
+
+                const form = this;
+                const formData = new FormData(form);
+
+                const $btn = $('#submitBtn');
+
+                $.ajax({
+                    url: $(form).attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    dataType: 'json',
+                    beforeSend: function() {
+                        $('#submitCancelBtn').prop('disabled', true);
+                        $btn.prop('disabled', true);
+                        $btn.find('#submitSpinner').removeClass('d-none');
+                    },
+                    
+                    success: async function(res) {
+                        if (res.status === 'success') {
+                            $('#attendanceModal [data-bs-dismiss="modal"]').trigger('click');
+
+                            const $tbody = $('tbody');
+
+                            if ($tbody.text().includes('Belum ada data absensi')) {
+                                $tbody.empty();
+                            }
+
+                            if (res.html) {
+                                $tbody.prepend(res.html);
+                            }
+
+                            $tbody.find('tr').each(function(index) {
+                                $(this).find('td:first').text(index + 1);
+                            });
+
+                            form.reset();
+
+                            await Swal.fire({
+                                title: res.data?.title ?? 'Success',
+                                icon: res.data?.icon ?? 'success',
+                                text: res.message,
+                                timer: 5000,
+                            });
+
+                            if (res.redirect) {
+                                window.location.href = res.redirect;
+                            }
+                        }
+                    },
+                    error: async function(res) {
+                        await Swal.fire({
+                            title: 'Error',
+                            icon: 'error',
+                            text: res.responseJSON.message,
+                            timer: 5000,
+                        });
+                    },
+                    complete: function() {
+                        $('#submitCancelBtn').prop('disabled', false);
+                        $('#submitBtn').prop('disabled', false);
+                        $('#submitSpinner').addClass('d-none');
+                        $('#no-absent').addClass('d-none');
+                    }
+                });
+            })
+        });
+    </script>
+@endpush

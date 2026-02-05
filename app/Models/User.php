@@ -3,9 +3,10 @@
 namespace App\Models;
 
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 
@@ -24,6 +25,8 @@ class User extends Authenticatable
         'email',
         'password',
         'avatar',
+        'role',
+        'division_id',
     ];
 
     /**
@@ -52,5 +55,10 @@ class User extends Authenticatable
     public function firstName(): string
     {
         return Str::before($this->name, ' ');
+    }
+
+    public function division(): BelongsTo
+    {
+        return $this->belongsTo(Division::class);
     }
 }

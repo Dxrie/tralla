@@ -4,29 +4,6 @@
 
 @section('content')
     <style>
-        .scrollable-tbody tbody {
-            display: block;
-            flex-grow: 1;
-            overflow-y: scroll;
-            width: 100%;
-        }
-
-        .scrollable-tbody thead,
-        .scrollable-tbody tbody tr {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }
-
-        *::-webkit-scrollbar {
-            display: none;
-        }
-
-        * {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-
         #customPopup {
             display: none;
             position: fixed;
@@ -59,85 +36,115 @@
     @endif
 
     <div class="w-100 h-100 d-flex flex-column gap-4">
-        <div class="w-100 h-50 rounded-3 p-3 d-flex flex-column overflow-hidden">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="fw-bold">Absensi Pulang</h3>
+        <div class="d-flex justify-content-between align-items-center">
+            <h3 class="fw-bold">Absensi Pulang</h3>
 
-                <button id="openModalBtn" type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
-                    data-bs-toggle="modal" data-bs-target="#attendanceModal">
-                    <i class="bi bi-plus-lg"></i>
-                    <span>Tambah Absensi</span>
-                </button>
+            <button id="openModalBtn" type="button" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm"
+                data-bs-toggle="modal" data-bs-target="#attendanceModal">
+                <i class="bi bi-plus-lg"></i>
+                <span>Tambah Absensi</span>
+            </button>
 
-                <x-absensi-camera />
+            <x-absensi-camera />
+        </div>
+
+        <div class="w-100 rounded-2 bg-white p-3">
+            <form method="GET" class="row g-2 align-items-end">
+                <div class="col-12 col-md-6">
+                    <label class="form-label mb-1">Search nama</label>
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                        placeholder="Cari nama karyawan...">
+                </div>
+
+                <div class="col-6 col-md-2">
+                    <label class="form-label mb-1">Dari</label>
+                    <input type="date" name="from" value="{{ request('from', now()->toDateString()) }}"
+                        class="form-control">
+                </div>
+
+                <div class="col-6 col-md-2">
+                    <label class="form-label mb-1">Sampai</label>
+                    <input type="date" name="to" value="{{ request('to', now()->toDateString()) }}"
+                        class="form-control">
+                </div>
+
+                <div class="col-6 col-md-2">
+                    <label class="form-label mb-1">Per halaman</label>
+                    <select name="per_page" class="form-select">
+                        @foreach ([10, 25, 50, 100] as $pp)
+                            <option value="{{ $pp }}" @selected((int) request('per_page', 10) === $pp)>{{ $pp }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="col-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-search me-1"></i> Terapkan
+                    </button>
+                    <a href="{{ route('absensi.keluar') }}" class="btn btn-outline-secondary">
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="w-100 rounded-2 bg-white p-3">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" style="font-size: 0.925rem">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">No</th>
+                            <th style="width: 20%;">Name</th>
+                            <th style="width: 25%;">Tanggal</th>
+                            <th style="width: 20%;">Waktu</th>
+                            <th style="width: 25%;">Bukti</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($todaysEntries as $entry)
+                            <tr>
+                                <td style="width: 5%;">{{ ($todaysEntries->firstItem() ?? 0) + $loop->index }}</td>
+                                <td style="width: 20%;">{{ $entry->user->name }}</td>
+
+                                {{-- Display Date (e.g., 21 January 2026) --}}
+                                <td style="width: 25%;">{{ $entry->created_at->format('d F Y') }}</td>
+
+                                {{-- Display Time (e.g., 08:30:00) --}}
+                                <td style="width: 20%;">{{ $entry->created_at->format('H:i:s') }}</td>
+
+                                <td style="width: 25%;">
+                                    @if ($entry->image_path)
+                                        {{-- Link to view the proof in a new tab --}}
+                                        <a href="{{ Storage::url($entry->image_path) }}" target="_blank"
+                                            class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i> Lihat Bukti
+                                        </a>
+                                    @else
+                                        <span class="text-muted small">Tidak ada foto</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+                                    Belum ada data absensi untuk hari ini.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
 
-            <table class="table table-hover scrollable-tbody mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th style="width: 5%;">No</th>
-                        <th style="width: 20%;">Name</th>
-                        <th style="width: 25%;">Tanggal</th>
-                        <th style="width: 20%;">Waktu</th>
-                        <th style="width: 25%;">Bukti</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($todaysEntries as $entry)
-                        <tr>
-                            <td style="width: 5%;">{{ $loop->iteration }}</td>
-                            <td style="width: 20%;">{{ $entry->user->name }}</td>
-
-                            {{-- Display Date (e.g., 21 January 2026) --}}
-                            <td style="width: 25%;">{{ $entry->created_at->format('d F Y') }}</td>
-
-                            {{-- Display Time (e.g., 08:30:00) --}}
-                            <td style="width: 20%;">{{ $entry->created_at->format('H:i:s') }}</td>
-
-                            <td style="width: 25%;">
-                                @if ($entry->image_path)
-                                    {{-- Link to view the proof in a new tab --}}
-                                    <a href="{{ Storage::url($entry->image_path) }}" target="_blank"
-                                        class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-eye"></i> Lihat Bukti
-                                    </a>
-                                @else
-                                    <span class="text-muted small">Tidak ada foto</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
-                                <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
-                                Belum ada data absensi untuk hari ini.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+            <div class="d-flex justify-content-end mt-3">
+                {{ $todaysEntries->links() }}
+            </div>
         </div>
     </div>
 
     @push('scripts')
         <script type="module">
-            $(document).ready(() => {
-                $('#openModalBtn').on('click', function() {
-                    $('#attendanceModal').modal('show');
-                });
-
-                $('#openBtn').on('click', function() {
-                    $('#customPopup').fadeIn();
-                });
-
-                $('#closeBtn').on('click', function() {
-                    $('#customPopup').fadeOut();
-                });
-
-                if ($('#customPopup').is(':visible')) {
-                    console.log("The popup is currently open");
-                }
-
+            $(document).ready(function() {
                 const $video = $('#video');
                 const $canvas = $('#canvas');
                 const $result = $('#result');
@@ -147,31 +154,88 @@
                 const $imageInput = $('#image_base64');
                 const $cameraContainer = $('#camera-container');
                 const $loadingText = $('#camera-loading');
-
+                const $statusSelect = $('#statusSelect');
+                const $keteranganField = $('#keterangan_field');
+                const $keteranganInput = $('#keterangan');
+                const $cameraWrapper = $('#camera');
                 let stream = null;
 
-                $('#attendanceModal').on('shown.bs.modal', async function() {
+                async function startCamera() {
                     try {
-                        stream = await navigator.mediaDevices.getUserMedia({
-                            video: {
-                                facingMode: "user"
-                            }
-                        });
-
-                        $video[0].srcObject = stream;
-                        $loadingText.addClass('d-none');
+                        if (!stream) {
+                            stream = await navigator.mediaDevices.getUserMedia({
+                                video: {
+                                    facingMode: "user"
+                                }
+                            });
+                            $video[0].srcObject = stream;
+                            $loadingText.addClass('d-none');
+                        }
                     } catch (err) {
-                        alert("Camera access denied or not available!");
-                        console.error(err);
+                        console.error("Camera Error:", err);
+                        alert("Could not start camera.");
+                    }
+                }
+
+                function stopCamera() {
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                        $video[0].srcObject = null;
+                        stream = null;
+                    }
+                }
+
+                function resetCameraUI() {
+                    $result.addClass('d-none');
+                    $cameraContainer.removeClass('d-none');
+                    $imageInput.val('');
+
+                    $snapBtn.removeClass('d-none');
+                    $retakeBtn.addClass('d-none');
+                    $submitBtn.prop('disabled', true);
+                    $loadingText.removeClass('d-none');
+                }
+
+                $('#attendanceModal').on('shown.bs.modal', function() {
+                    if ($statusSelect.val() !== 'izin') {
+                        startCamera();
                     }
                 });
 
                 $('#attendanceModal').on('hidden.bs.modal', function() {
-                    if (stream) {
-                        stream.getTracks().forEach(track => track.stop());
-                        $video[0].srcObject = null;
+                    stopCamera();
+                    resetCameraUI();
+                    $statusSelect.val($statusSelect.find("option:first").val());
+                    $keteranganField.addClass('d-none');
+                    $cameraWrapper.removeClass('d-none');
+                });
+
+                $statusSelect.on('change', function() {
+                    const value = $(this).val();
+
+                    if (value === 'izin') {
+                        $keteranganField.removeClass('d-none');
+                        $keteranganInput.prop('required', true);
+
+                        $cameraWrapper.addClass('d-none');
+
+                        stopCamera();
+                        $imageInput.val('');
+                        $imageInput.prop('required', false);
+                        $submitBtn.prop('disabled', false);
+                    } else {
+                        $keteranganField.addClass('d-none');
+                        $keteranganInput.prop('required', false).val('');
+
+                        $cameraWrapper.removeClass('d-none');
+
+                        startCamera();
+                        $imageInput.prop('required', true);
+
+                        if ($imageInput.val() === '') {
+                            $submitBtn.prop('disabled', true);
+                        }
                     }
-                    resetCamera();
                 });
 
                 $snapBtn.on('click', function() {
@@ -196,19 +260,8 @@
                 });
 
                 $retakeBtn.on('click', function() {
-                    resetCamera();
+                    resetCameraUI();
                 });
-
-                function resetCamera() {
-                    $result.addClass('d-none');
-                    $cameraContainer.removeClass('d-none');
-                    $imageInput.val('');
-
-                    $snapBtn.removeClass('d-none');
-                    $retakeBtn.addClass('d-none');
-                    $submitBtn.prop('disabled', true);
-                    $loadingText.removeClass('d-none');
-                }
             });
         </script>
     @endpush

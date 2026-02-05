@@ -3,50 +3,58 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Subtask;
 use App\Models\Todo;
 use Illuminate\Http\Request;
 
 class TodoController extends Controller
 {
-    public function create()
-    {
-        return view('todos.create');
-    }
-
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required',
-            'status' => 'required',
-            'tanggal' => 'required|date',
-            'description' => 'nullable|string'
-        ]);
-
-        Todo::create($request->all());
-
-        return redirect()->route('todo.index')
-                         ->with('success', 'Data berhasil ditambahkan!');
-    }
-
     public function index(Request $request)
     {
         $query = Todo::query();
+
+        if ($request->search) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
 
         if ($request->status) {
             $query->where('status', $request->status);
         }
 
         if ($request->bulan) {
-            $query->whereMonth('tanggal', $request->bulan);
+            $query->whereMonth('start_date', $request->bulan);
         }
 
         if ($request->tahun) {
-            $query->whereYear('tanggal', $request->tahun);
+            $query->whereYear('start_date', $request->tahun);
         }
 
-        $todos = $query->orderBy('tanggal', 'desc')->get();
+        $perPage = (int) $request->input('per_page', 10);
+        $perPage = max(1, min(100, $perPage));
 
-        $statuses = ['to-do', 'on progress', 'hold', 'done'];
+        $todos = $query->with('subtasks')->orderBy('start_date', 'desc')->paginate($perPage);
+
+        if ($request->ajax()) {
+            $html = '';
+            foreach ($todos as $index => $todo) {
+                $index = ($todos->currentPage() - 1) * $todos->perPage() + $index + 1;
+                $html .= view('users.todos.partials.table_row', compact('todo', 'index'))->render();
+            }
+            if ($todos->isEmpty()) {
+                $html = '<tr class="text-center"><td colspan="7">Belum ada data</td></tr>';
+            }
+            $pagination = '';
+            if ($todos->hasPages()) {
+                $pagination = $todos->appends($request->query())->links()->toHtml();
+            }
+
+            return response()->json([
+                'html' => $html,
+                'pagination' => $pagination,
+            ]);
+        }
+
+        $statuses = ['On Progress', 'Hold', 'Done'];
 
         $months = [
             1 => 'Januari', 2 => 'Februari', 3 => 'Maret',
@@ -61,41 +69,104 @@ class TodoController extends Controller
             $years[] = $i;
         }
 
-        return view('todos.index', compact('todos', 'statuses', 'months', 'years'));
+        return view('users.todos.index', compact('todos', 'statuses', 'months', 'years'));
     }
-
-    public function edit(Todo $todo)
+    
+    public function store(Request $request)
     {
-        return view('todos.edit', compact('todo'));
+        $validated = $request->validate([
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'status'      => 'required|string',
+            'start_date'  => 'required|date',
+            'finish_date' => 'nullable|date',
+            'subtasks'    => 'nullable|array',
+            'subtasks.*'  => 'nullable|string|max:255',
+        ]);
+        
+        $todo = Todo::create([
+            'title'       => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'status'      => $validated['status'],
+            'start_date'  => $validated['start_date'],
+            'finish_date' => $validated['finish_date'] ?? null,
+        ]);
+
+        if (!empty($validated['subtasks'])) {
+            foreach ($validated['subtasks'] as $name) {
+                if (trim($name) === '') continue;
+
+                $todo->subtasks()->create([
+                    'name'    => $name,
+                    'is_done' => false,
+                ]);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Created successfully',
+        ]);
     }
 
     public function update(Request $request, Todo $todo)
     {
-        $request->validate([
-            'title' => 'required',
+        $validated = $request->validate([
+            'title' => 'string|max:255',
             'status' => 'required',
-            'tanggal' => 'required|date',
-            'description' => 'nullable|string'
+            'start_date' => 'date',
+            'finish_date' => 'nullable|date',
+            'description' => 'nullable|string',
+            'subtasks' => 'nullable|array',
+            'subtasks.*' => 'nullable|string|max:255'
         ]);
 
-        $data = $request->all();
+        $data = $validated;
 
-        if ($request->status === 'done' && $todo->tanggal_selesai === null) {
-            $data['tanggal_selesai'] = now();
-        }
-
-        if ($request->status !== 'done') {
-            $data['tanggal_selesai'] = null;
+        if ($request->status === 'done' && !$request->filled('finish_date') && $todo->finish_date === null) {
+            $data['finish_date'] = now();
         }
 
         $todo->update($data);
 
-        return redirect()->route('todo.index');
+        // Handle subtasks: update existing ones, add new ones
+        $existingSubtasks = $todo->subtasks;
+        if (!empty($request->subtasks)) {
+            foreach ($request->subtasks as $index => $name) {
+                $name = trim($name);
+                if ($name === '') continue;
+
+                if ($index < $existingSubtasks->count()) {
+                    // Update existing subtask
+                    $existingSubtasks[$index]->update(['name' => $name]);
+                } else {
+                    // Create new subtask
+                    $todo->subtasks()->create([
+                        'name' => $name,
+                        'is_done' => false,
+                    ]);
+                }
+            }
+        }
+
+        return response()->json([
+            'message' => 'Todo have successfully been updated.',
+            'id' => $todo->id,
+        ]);
     }
 
     public function destroy(Todo $todo)
     {
         $todo->delete();
-        return redirect()->route('todo.index');
+        return response()->json(['message' => 'Deleted successfully', 'id' => $todo->id]);
+    }
+
+    public function toggleSubtask(Subtask $subtask)
+    {
+        $subtask->update(['is_done' => !$subtask->is_done]);
+
+        return response()->json([
+            'message' => 'Subtask updated successfully',
+            'is_done' => $subtask->is_done,
+        ]);
     }
 }
