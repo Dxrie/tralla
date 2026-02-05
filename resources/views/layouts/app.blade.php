@@ -20,11 +20,36 @@
     <x-navbar />
 
     <main class="d-flex flex-grow-1 overflow-hidden">
-        <x-sidebar />
+        {{-- Desktop Sidebar --}}
+        <aside class="sidebar d-none d-md-flex">
+            <x-sidebar />
+        </aside>
 
-        <!-- Main Content Area -->
-        <div class="flex-grow-1 p-4 bg-secondary bg-opacity-25"
-            style="overflow-y: auto; overflow-x: hidden; min-width: 0;">
+        {{-- Mobile Offcanvas Sidebar --}}
+        <div
+            class="offcanvas offcanvas-start d-md-none"
+            tabindex="-1"
+            id="sidebarOffcanvas"
+            aria-labelledby="sidebarOffcanvasLabel"
+            style="width: 280px;"
+        >
+            <div class="offcanvas-header border-bottom">
+                <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">
+                    {{ config('app.name', 'Tralla') }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+            </div>
+
+            <div class="offcanvas-body p-0">
+                <x-sidebar />
+            </div>
+        </div>
+
+        {{-- Main Content --}}
+        <div
+            class="flex-grow-1 p-4 bg-secondary bg-opacity-25"
+            style="overflow-y:auto; overflow-x:hidden; min-width:0;"
+        >
             <div class="container-fluid">
                 @yield('content')
             </div>

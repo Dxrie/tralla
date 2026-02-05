@@ -28,7 +28,6 @@ class Sidebar extends Component
     {
         if (!$this->isAuthenticated) return '';
 
-        if ($this->user->role === 'employee') return view('components.sidebar-employee');
-        return view('components.sidebar-employer');
+        return view('components.sidebar');
     }
 }

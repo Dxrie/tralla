@@ -1,8 +1,19 @@
 <nav {{ $attributes->merge(['class' => 'navbar navbar-expand-md navbar-light bg-white border-bottom shadow-sm bg-light']) }}
     style="height: 70px;">
     <div class="container-fluid px-4 h-100">
+        <!-- Toggle Sidebar on Small Device -->
+        <button
+            class="btn btn-outline-secondary d-md-none me-2"
+            type="button"
+            data-bs-toggle="offcanvas"
+            data-bs-target="#sidebarOffcanvas"
+            aria-controls="sidebarOffcanvas"
+        >
+            <i class="bi bi-list"></i>
+        </button>
+        
         <!-- Website Logo -->
-        <a class="navbar-brand d-flex align-items-center h-100" href="{{ $homeRoute() }}">
+        <a class="navbar-brand d-none d-md-flex align-items-center h-100" href="{{ $homeRoute() }}">
             <span class="fw-bold fs-4 text-dark">
                 {{ config('app.name', 'Tralla') }}
             </span>

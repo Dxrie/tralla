@@ -25,6 +25,7 @@
                 </a>
             </li>
 
+            @if(Auth::user()->role === 'employer')
             <!-- Karyawan -->
             <li class="nav-item">
                 <a href="{{ route('karyawan.index') }}"
@@ -51,6 +52,7 @@
                     <span>Divisi</span>
                 </a>
             </li>
+            @endif
 
             <!-- Absensi Dropdown -->
             <li class="nav-item">
@@ -94,10 +96,21 @@
                 </a>
             </li>
 
-            <!-- Peminjaman Barang -->
+            @if(Auth::user()->role === 'employee')
+            <!-- To Do List -->
             <li class="nav-item">
-                <a href="{{ route('peminjaman.index') }}"
-                    class="nav-link {{ request()->routeIs('peminjaman.index') ? 'active' : 'link-dark' }} d-flex align-items-center">
+                <a href="{{ route('todo.index') }}"
+                    class="nav-link {{ request()->routeIs('todo.index') ? 'active' : 'link-dark' }} d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill me-3"></i>
+                    <span>To Do List</span>
+                </a>
+            </li>
+            @endif
+
+            <!-- Loan Barang -->
+            <li class="nav-item">
+                <a href="{{ route('loan.index') }}"
+                    class="nav-link {{ request()->routeIs('loan.index') ? 'active' : 'link-dark' }} d-flex align-items-center">
                     <i class="bi bi-box-seam-fill me-3"></i>
                     <span>Peminjaman Barang</span>
                 </a>
