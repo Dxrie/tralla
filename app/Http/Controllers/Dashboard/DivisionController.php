@@ -8,9 +8,19 @@ use Illuminate\Http\Request;
 
 class DivisionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $divisions = Division::query()->orderBy('created_at')->get();
+        $perPage = (int) $request->integer('per_page', 10);
+        $perPage = max(1, min(100, $perPage));
+
+        $query = Division::query()->orderBy('created_at');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $divisions = $query->paginate($perPage)->withQueryString();
 
         return view('users.divisions.index', compact('divisions'));
     }
