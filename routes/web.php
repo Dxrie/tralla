@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
             Route::put('/profile/update', 'update')->name('profile.update');
             Route::put('/profile/change-password', 'changePassword')->name('profile.change-password');
             Route::put('/profile/avatar', 'updateAvatar')->name('profile.avatar');
+            Route::patch('/profile/avatar', 'deleteAvatar')->name('profile.avatar.delete');
         });
 
         Route::middleware('role:employer')->group(function () {

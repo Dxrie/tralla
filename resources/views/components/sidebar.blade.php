@@ -4,6 +4,7 @@
             <div class="position-relative" style="width: 56px; height: 56px;">
                 <img draggable="false"
                     src="{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('images/default-avatar.png') }}"
+                    alt="Profile Avatar"
                     class="w-100 h-100 object-fit-cover rounded-circle border" alt="{{ $user->name ?? 'User' }}">
             </div>
             <span class="mt-2 px-2 fw-medium text-dark">{{ $user->name ?? 'User' }}</span>

@@ -7,29 +7,35 @@
     <div class="col-lg-5">
         <div class="d-flex flex-column p-3 bg-light rounded-3 shadow">
             <p class="fs-4 fw-semibold text-light bg-primary flex-grow-1 text-center py-3 rounded-2 mb-4">Profile Picture</p>
-            <form action="{{ route('profile.avatar') }}"
+            <div class="d-flex flex-column gap-3">
+                <form action="{{ route('profile.avatar') }}"
                 method="POST"
-                enctype="multipart/form-data"
-                class="d-flex flex-column gap-3">
+                enctype="multipart/form-data">
+                    @csrf
+                    @method('PUT')
 
-                @csrf
-                @method('PUT')
-
-                <div class="d-flex flex-column align-items-center">
                     <input type="file"
+                    id="changeavatar"
                     name="avatar"
-                    class="form-control @error('avatar') is-invalid @enderror"
+                    class="form-control d-none @error('avatar') is-invalid @enderror"
                     accept=".jpg,.jpeg,.png">
-                    @error('avatar')
-                        <div class="invalid-feedback d-block">
-                            {{ $message }}
-                        </div>
-                    @enderror
-                </div>
 
-                <button type="submit" class="btn btn-primary">
-                    Update Profile Picture
-                </button>
+                    <div class="d-flex flex-column">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="btn btn-primary flex-grow-1" onclick="$('#changeavatar').click()">
+                                Change Avatar
+                            </span>
+                            <button type="button" id="confirmAvatar" class="btn btn-success d-none" title="Confirm">
+                                <i class="bi bi-check-lg"></i>
+                            </button>
+                            <button type="button" id="cancelAvatar" class="btn btn-danger d-none" title="Cancel">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <button type="button" id="deleteAvatar" class="btn btn-danger flex-grow-1 @if (!$user->avatar) d-none @endif" title="Delete">Delete Avatar</button>
 
                 {{-- Avatar Preview --}}
                 <div class="text-center">
@@ -39,9 +45,10 @@
                                 : asset('images/default-avatar.png') }}"
                         class="img-fluid rounded-2 my-2 shadow"
                         style="max-height: 300px; object-fit: cover;"
-                        alt="Profile Avatar">
+                        alt="Profile Avatar"
+                        id="avatarPreview">
                 </div>
-            </form>
+            </div>
         </div>
     </div>
     <div class="col-lg-7">
@@ -280,8 +287,12 @@ $(document).ready(function () {
 
                 isEditing = false;
 
-                // Success feedback
-                alert(res.message);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: res.message,
+                    confirmButtonText: 'OK'
+                });
             },
 
             error: function (xhr) {
@@ -295,7 +306,12 @@ $(document).ready(function () {
                     $(`[name="${field}"]`).addClass('is-invalid');
                 });
 
-                alert('Please fix the errors.');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Please fix the errors.',
+                    confirmButtonText: 'OK'
+                });
 
                 $editBtn
                     .prop('disabled', false)
@@ -338,11 +354,178 @@ $(document).ready(function () {
         $btn.find('#changePassSpinner').removeClass('d-none')
     })
 
-    @if ($errors->has('old_password') || 
-    $errors->has('new_password') || 
+    @if ($errors->has('old_password') ||
+    $errors->has('new_password') ||
     $errors->has('new_password_confirmation'))
         $("#changePasswordBtn").click();
     @endif
+
+    let selectedFile = null;
+    const originalSrc = '{{ $user->avatar ? asset('storage/' . $user->avatar) : asset('images/default-avatar.png') }}';
+
+    // Function to crop image to 1:1 aspect ratio
+    function cropToSquare(dataURL) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const size = Math.min(img.width, img.height);
+                canvas.width = size;
+                canvas.height = size;
+                const offsetX = (img.width - size) / 2;
+                const offsetY = (img.height - size) / 2;
+                ctx.drawImage(img, offsetX, offsetY, size, size, 0, 0, size, size);
+                resolve(canvas.toDataURL('image/jpeg'));
+            };
+            img.src = dataURL;
+        });
+    }
+
+    // Handle avatar change
+    $('#changeavatar').on('change', function() {
+        const file = this.files[0];
+        if (file) {
+            selectedFile = file;
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const croppedDataURL = await cropToSquare(e.target.result);
+                $('#avatarPreview').attr('src', croppedDataURL);
+            };
+            reader.readAsDataURL(file);
+            // Show buttons
+            $('#confirmAvatar, #cancelAvatar').removeClass('d-none');
+        }
+    });
+
+    // Confirm avatar
+    $('#confirmAvatar').on('click', function() {
+        if (selectedFile) {
+            const formData = new FormData();
+            formData.append('avatar', selectedFile);
+            formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+            formData.append('_method', 'PUT');
+
+            Swal.fire({
+                title: 'Updating...',
+                text: 'Please wait while we update your profile.',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: '{{ route("profile.avatar") }}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(res) {
+                    Swal.close();
+
+                    // Update to the uploaded image
+                    $('img[alt="Profile Avatar"]').attr('src', res.avatar_url);
+                    selectedFile = null;
+                    $('#confirmAvatar, #cancelAvatar').addClass('d-none');
+                    // Show delete button
+                    $('#deleteAvatar').removeClass('d-none');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: res.message,
+                        confirmButtonText: 'OK'
+                    });
+                },
+                error: function(xhr) {
+                    Swal.close();
+                    
+                    // Revert preview
+                    $('img[alt="Profile Avatar"]').attr('src', originalSrc);
+                    selectedFile = null;
+                    $('#confirmAvatar, #cancelAvatar').addClass('d-none');
+                    const errorMessage = xhr.responseJSON?.message || 'Failed to update avatar.';
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: errorMessage,
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        }
+    });
+
+    // Cancel avatar
+    $('#cancelAvatar').on('click', function() {
+        // Revert preview
+        $('img[alt="Profile Avatar"]').attr('src', originalSrc);
+        selectedFile = null;
+        $('#confirmAvatar, #cancelAvatar').addClass('d-none');
+        // Clear file input
+        $('#changeavatar').val('');
+    });
+
+    // Delete avatar
+    $('#deleteAvatar').on('click', function() {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to delete your profile picture?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Deleting...',
+                    text: 'Please wait while we delete your profile picture.',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    willOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                $.ajax({
+                    url: '{{ route("profile.avatar.delete") }}',
+                    type: 'PATCH',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                success: function(res) {
+                    Swal.close();
+
+                    // Update avatar to default
+                    $('#avatarPreview').attr('src', res.avatar_url);
+                    $('img[alt="Profile Avatar"]').attr('src', res.avatar_url);
+                    // Hide delete button
+                    $('#deleteAvatar').addClass('d-none');
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: res.message,
+                        confirmButtonText: 'OK'
+                    });
+                },
+                    error: function(xhr) {
+                        Swal.close();
+                        const errorMessage = xhr.responseJSON?.message || 'Failed to delete avatar.';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorMessage,
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            }
+        });
+    })
 });
 </script>
 @endsection

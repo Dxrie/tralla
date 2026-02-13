@@ -120,8 +120,17 @@ class TodoController extends Controller
             'subtasks.*'  => 'nullable|string|max:255'
         ]);
 
-        if ($request->status === 'done' && !$request->filled('finish_date') && $todo->finish_date === null) {
+        $subtasksMarkedDone = false;
+        
+        if ($request->status === 'Done' && !$request->filled('finish_date') && $todo->finish_date === null) {
             $validated['finish_date'] = now();
+        }
+
+        // Check if status is being changed to done
+        if ($request->status === 'Done' && $todo->status !== 'Done') {
+            // Mark all subtasks as done
+            $todo->subtasks()->update(['is_done' => true]);
+            $subtasksMarkedDone = true;
         }
 
         $todo->update($validated);
@@ -149,6 +158,7 @@ class TodoController extends Controller
         return response()->json([
             'message' => 'Todo have successfully been updated.',
             'id' => $todo->id,
+            'subtasks_marked_done' => $subtasksMarkedDone,
         ]);
     }
 
@@ -161,6 +171,7 @@ class TodoController extends Controller
     public function toggleSubtask(Subtask $subtask)
     {
         $subtask->update(['is_done' => !$subtask->is_done]);
+        $subtask->refresh();
 
         return response()->json([
             'message' => 'Subtask updated successfully',
