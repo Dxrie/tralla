@@ -36,7 +36,7 @@
                                 ? asset('storage/' . $user->avatar)
                                 : asset('images/default-avatar.png') }}"
                                         class="w-100 h-100 object-fit-cover rounded-circle p-1 bg-primary bg-opacity-25"
-                                        alt="{{ $user->name ?? 'User' }}">
+                                        alt="Profile Avatar">
                                 </div>
                                 <span class="mx-2">{{ $user->name ?? 'User' }}</span>
                                 <i class="bi bi-chevron-down bi-bold"></i>

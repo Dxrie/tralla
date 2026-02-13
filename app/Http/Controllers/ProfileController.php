@@ -106,6 +106,39 @@ class ProfileController extends Controller
             'avatar' => $path,
         ]);
 
+        // AJAX response
+        if ($request->ajax()) {
+            return response()->json([
+                'message' => 'Profile picture updated successfully.',
+                'avatar_url' => asset('storage/' . $path),
+            ]);
+        }
+
+        // fallback (non-AJAX)
         return back()->with('success', 'Profile picture updated.');
+    }
+
+    public function deleteAvatar(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $user->update([
+            'avatar' => null,
+        ]);
+
+        // AJAX response
+        if ($request->ajax()) {
+            return response()->json([
+                'message' => 'Profile picture deleted successfully.',
+                'avatar_url' => asset('images/default-avatar.png'),
+            ]);
+        }
+
+        // fallback (non-AJAX)
+        return back()->with('success', 'Profile picture deleted.');
     }
 }

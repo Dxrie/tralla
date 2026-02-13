@@ -14,6 +14,9 @@ class Subtask extends Model
         "name",
         "is_done",
     ];
+    protected $casts = [
+        'is_done' => 'boolean',
+    ];
 
     public function todo() {
         return $this->belongsTo(Todo::class);

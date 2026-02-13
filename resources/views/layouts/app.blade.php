@@ -63,7 +63,8 @@
             icon: 'success',
             title: 'Success',
             text: "{{ session('success') }}",
-            confirmButtonText: 'OK'
+            timer: 2500,
+            showConfirmButton: false
         });
     </script>
     @endif
@@ -72,8 +73,9 @@
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: "{{ session('success') }}",
-            confirmButtonText: 'OK'
+            text: "{{ session('error') }}",
+            timer: 2500,
+            showConfirmButton: false
         });
     </script>
     @endif

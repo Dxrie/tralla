@@ -487,7 +487,7 @@ $(function() {
         });
 
         $.ajax({
-            url: `/todo/subtask/${subtaskId}/toggle`,
+            url: `/dashboard/todo/subtask/${subtaskId}/toggle`,
             method: 'PATCH',
             data: {
                 _token: $('meta[name="csrf-token"]').attr('content')
@@ -558,11 +558,23 @@ $(function() {
                 success: function (res) {
                     Swal.close();
 
-                    Swal.fire(
-                        'Success',
-                        'Status updated successfully!',
-                        'success'
-                    );
+                    if (res.subtasks_marked_done) {
+                        // Check all subtask checkboxes in the view modal
+                        $('#viewSubtasks .view-subtask-checkbox').prop('checked', true);
+                        $('#viewSubtasks .view-subtask-checkbox').siblings('span').addClass('text-decoration-line-through text-muted');
+
+                        Swal.fire(
+                            'Success',
+                            'All subtasks have been marked as done too!',
+                            'success'
+                        );
+                    } else {
+                        Swal.fire(
+                            'Success',
+                            'Status updated successfully!',
+                            'success'
+                        );
+                    }
 
                     // Refresh the table
                     $('.filter-form').trigger('submit');
@@ -577,7 +589,7 @@ $(function() {
 
                     Swal.fire(
                         'Error!',
-                        'Something went wrong. Status reverted to original.',
+                        xhr.responseJSON.message,
                         'error'
                     );
                 }
