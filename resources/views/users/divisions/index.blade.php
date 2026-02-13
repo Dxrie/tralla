@@ -40,6 +40,38 @@
             </div>
         @endif
 
+        {{-- Search and Filter --}}
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-body">
+                <form method="GET" class="row g-2 align-items-end">
+                    <div class="col-12 col-md-6">
+                        <label class="form-label mb-1">Cari divisi</label>
+                        <input type="text" name="search" value="{{ request('search') }}" class="form-control"
+                            placeholder="Cari nama divisi...">
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <label class="form-label mb-1">Per halaman</label>
+                        <select name="per_page" class="form-select">
+                            <option value="10" @selected(request('per_page', 10) == 10)>10</option>
+                            <option value="25" @selected(request('per_page', 10) == 25)>25</option>
+                            <option value="50" @selected(request('per_page', 10) == 50)>50</option>
+                            <option value="100" @selected(request('per_page', 10) == 100)>100</option>
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search me-2"></i>Cari
+                        </button>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <a href="{{ route('divisi.index') }}" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-arrow-clockwise me-2"></i>Reset
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         {{-- Table Card --}}
         <div class="card shadow border-0">
             <div class="card-body p-0">
@@ -55,7 +87,7 @@
                         <tbody>
                             @forelse ($divisions as $division)
                                 <tr id="division-{{ $division->id }}">
-                                    <td class="text-center text-muted">{{ $loop->iteration }}</td>
+                                    <td class="text-center text-muted">{{ ($divisions->firstItem() ?? 0) + $loop->index }}</td>
                                     <td class="fw-medium">{{ $division->name }}</td>
                                     <td class="text-end pe-4">
                                         <div class="btn-group" role="group">
@@ -92,6 +124,13 @@
                 </div>
             </div>
         </div>
+
+        {{-- Pagination --}}
+        @if($divisions->hasPages())
+            <div class="d-flex justify-content-end mt-3">
+                {{ $divisions->links() }}
+            </div>
+        @endif
     </div>
 
     {{-- Create Modal (Dynamic) --}}
